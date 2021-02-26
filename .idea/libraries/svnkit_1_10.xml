@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="svnkit-1.10">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/lib/svnkit-1.10.3/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="file://$PROJECT_DIR$/lib/svnkit-1.10.3/src" />
+    </SOURCES>
+    <jarDirectory url="file://$PROJECT_DIR$/lib/svnkit-1.10.3/lib" recursive="false" />
+    <jarDirectory url="file://$PROJECT_DIR$/lib/svnkit-1.10.3/src" recursive="false" type="SOURCES" />
+  </library>
+</component>

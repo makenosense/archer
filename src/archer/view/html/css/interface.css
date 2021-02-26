@@ -1,0 +1,299 @@
+body {
+    color: #cccccc;
+    background-color: #313335;
+    font-family: "Microsoft YaHei", sans-serif;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
+/*侧边栏*/
+#sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 66px;
+    height: 100vh;
+    background-color: #3c3f41;
+}
+
+.sidebar-tab-item {
+    width: 100%;
+    height: auto;
+    text-align: center;
+    padding: 15px 0;
+    margin: auto;
+}
+
+.sidebar-tab-item > i {
+    line-height: 32px;
+    font-size: 22px;
+}
+
+.sidebar-tab-item > i.layui-icon-loading {
+    display: none;
+}
+
+.sidebar-tab-item > div {
+    line-height: 18px;
+    font-size: 13px;
+}
+
+#sidebar-repo-close {
+    position: absolute;
+    bottom: 0;
+}
+
+.sidebar-tab-item:hover {
+    color: #ffffff;
+}
+
+.layui-this {
+    color: #ffffff;
+    background-color: #3697dc;
+}
+
+/*主体内容*/
+#content {
+    height: 100vh;
+    padding-left: 66px;
+    font-size: 13px;
+}
+
+.content-item {
+    height: 100%;
+    display: none;
+}
+
+.content-item hr {
+    margin: 0;
+    background-color: #515151;
+}
+
+/*仓库操作*/
+#repo-ops {
+    padding: 5px 10px;
+}
+
+#repo-ops button {
+    color: inherit;
+    background-color: rgba(255, 255, 255, 0);
+    border: none;
+    padding: 3px 15px;
+    height: auto;
+    line-height: 26px;
+    cursor: default;
+}
+
+#repo-ops button > i {
+    margin-right: 3px;
+}
+
+#repo-ops button:hover {
+    color: #ffffff;
+    background-color: #515151;
+}
+
+#repo-ops-onselect {
+    display: none;
+}
+
+/*仓库导航*/
+#repo-nav {
+    padding: 5px 10px;
+    line-height: 25px;
+}
+
+.repo-nav-ops {
+    padding: 4px 8px;
+    font-size: 17px;
+}
+
+.repo-nav-ops:not(.repo-nav-ops-disabled):hover {
+    color: #ffffff;
+    background-color: #515151;
+}
+
+.repo-nav-ops-disabled {
+    color: #5a5a5a;
+}
+
+#repo-nav-path {
+    position: absolute;
+    left: 225px;
+    right: 220px;
+    width: auto;
+    height: 25px;
+    border-left: 1px solid #515151;
+    border-right: 1px solid #515151;
+    padding: 0 10px;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.repo-nav-path-node {
+    margin-right: 5px;
+    cursor: pointer;
+}
+
+.repo-nav-path-node > i {
+    margin-left: 5px;
+}
+
+.repo-nav-path-node:hover {
+    color: #ffffff;
+}
+
+#repo-nav-path-node-ellipsis {
+    display: none;
+}
+
+#repo-nav-search {
+    position: absolute;
+    right: 10px;
+}
+
+/*仓库文件列表*/
+#repo-content-table {
+    color: inherit;
+    background-color: rgba(255, 255, 255, 0);
+    margin: 0;
+}
+
+#repo-content-table > thead {
+    border-bottom: 1px solid #515151;
+}
+
+#repo-content-table > thead > tr {
+    background-color: rgba(255, 255, 255, 0);
+}
+
+#repo-content-table > thead > tr > th {
+    border-right: 1px solid #515151;
+    padding: 5px 10px;
+    font-size: inherit;
+}
+
+#repo-content-table > thead > tr > th > i.sort-icon {
+    display: none;
+    position: absolute;
+    right: 10px;
+    font-size: 18px;
+    line-height: 20px;
+}
+
+#repo-content-table > thead > tr > th.th-responsive:hover {
+    background-color: #515151;
+}
+
+#repo-content-table > tbody {
+    position: fixed;
+    top: 110px;
+    bottom: 30px;
+    left: 66px;
+    right: 0;
+    overflow: scroll;
+}
+
+#repo-content-table > tbody > tr:not(.tr-selected):hover {
+    background-color: #515151;
+}
+
+#repo-content-table > tbody > tr > td {
+    padding: 8px 10px;
+    font-size: inherit;
+    line-height: 21px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+#repo-content-table > tbody > tr > td > i {
+    width: 20px;
+    font-size: 18px;
+    text-align: center;
+    vertical-align: text-bottom;
+    margin-right: 10px;
+    color: #fdd84a;
+}
+
+#repo-content-table .tr-checkbox {
+    transform: scale(0.9, 0.9);
+    margin: 0 5px;
+    vertical-align: bottom;
+}
+
+#repo-content-table .tr-selected {
+    color: #eeeeee;
+    background-color: #3697dc;
+}
+
+/*文件列表列宽*/
+.repo-content-td-name {
+    width: 430px;
+    max-width: 430px;
+}
+
+.repo-content-td-mtime {
+    width: 130px;
+    max-width: 130px;
+}
+
+.repo-content-td-type {
+    width: 80px;
+    max-width: 80px;
+}
+
+.repo-content-td-size {
+    width: 80px;
+    max-width: 80px;
+}
+
+/*文件名响应*/
+.repo-content-td-name span {
+    cursor: pointer;
+}
+
+.repo-content-td-name span:hover {
+    color: #ffffff;
+}
+
+/*文件列表填充块*/
+.repo-content-tbody-div-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.repo-content-tbody-div-fill > div {
+    font-size: 14px;
+    padding-bottom: 80px;
+}
+
+.repo-content-tbody-div-fill > div > i {
+    font-size: 50px;
+}
+
+/*仓库状态栏*/
+#repo-content-status {
+    position: fixed;
+    bottom: 0;
+    left: 66px;
+    right: 0;
+    height: 30px;
+    line-height: 30px;
+    border-top: 1px solid #515151;
+}
+
+#repo-content-status-count {
+    position: absolute;
+    right: 20px;
+}
+
+#repo-content-status-count i {
+    font-size: inherit;
+}
