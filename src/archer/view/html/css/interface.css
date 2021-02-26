@@ -179,6 +179,7 @@ body {
     right: 10px;
     font-size: 18px;
     line-height: 20px;
+    color: lightskyblue;
 }
 
 #repo-content-table > thead > tr > th.th-responsive:hover {

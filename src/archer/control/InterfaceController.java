@@ -18,6 +18,7 @@ import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -96,7 +97,10 @@ public class InterfaceController extends BaseController {
                                         .map(RepositoryDirEntry::new)
                                         .collect(Collectors.toList());
                             }
-                            Platform.runLater(() -> getWindow().call("fillRepoContent"));
+                            Platform.runLater(() -> {
+                                getWindow().call("updateRepoNav");
+                                getWindow().call("sortEntryList");
+                            });
                         } catch (Exception e) {
                             Platform.runLater(() -> AlertUtil.error("仓库加载失败", e));
                         } finally {
@@ -136,6 +140,33 @@ public class InterfaceController extends BaseController {
 
         public Object[] getEntryListAsArray() {
             return repositoryContentData != null ? repositoryContentData.entryList.toArray() : new Object[0];
+        }
+
+        public void sortEntryList(String sortKey, String direction) {
+            direction = "up".equals(direction) ? "up" : "down";
+            Comparator<RepositoryDirEntry> comparator;
+            switch (sortKey) {
+                case "mtime":
+                    comparator = "up".equals(direction) ?
+                            RepositoryDirEntry::entryMtimeCompare : RepositoryDirEntry::entryMtimeCompareRev;
+                    break;
+                case "type":
+                    comparator = "up".equals(direction) ?
+                            RepositoryDirEntry::entryTypeCompare : RepositoryDirEntry::entryTypeCompareRev;
+                    break;
+                case "size":
+                    comparator = "up".equals(direction) ?
+                            RepositoryDirEntry::entrySizeCompare : RepositoryDirEntry::entrySizeCompareRev;
+                    break;
+                case "name":
+                default:
+                    sortKey = "name";
+                    comparator = "up".equals(direction) ?
+                            RepositoryDirEntry::entryNameCompare : RepositoryDirEntry::entryNameCompareRev;
+            }
+            repositoryContentData.entryList.sort(comparator);
+            getWindow().call("fillRepoContentTable");
+            getWindow().call("showSortIcon", sortKey, direction);
         }
 
         public boolean hasPrevious() {

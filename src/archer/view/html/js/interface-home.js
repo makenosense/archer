@@ -7,12 +7,14 @@ let repoContentTableBody = $("#repo-content-table > tbody");
 let statusCount = $("#repo-content-status-count > span");
 
 
-function repoContentLoading() {
+function repoContentLoading(dataReloading = true) {
     repoOpsOnselect.hide();
-    switchRepoNavOps("repo-nav-ops-refresh", false);
     repoContentCheckAll.prop("checked", false);
-    statusCount.html($("#repo-content-status-count-loading-tpl").html());
-    repoContentTableBody.html($("#repo-content-table-loading-tpl").html());
+    if (dataReloading) {
+        switchRepoNavOps("repo-nav-ops-refresh", false);
+        statusCount.html($("#repo-content-status-count-loading-tpl").html());
+        repoContentTableBody.html($("#repo-content-table-loading-tpl").html());
+    }
 }
 
 function switchRepoNavOps(opID, status) {
@@ -59,25 +61,55 @@ function loadRepoContent() {
     }
 }
 
-function fillRepoContent() {
+function updateRepoNav() {
     try {
         switchRepoNavOps("repo-nav-ops-previous", javaApi.hasPrevious());
         switchRepoNavOps("repo-nav-ops-next", javaApi.hasNext());
         switchRepoNavOps("repo-nav-ops-parent", javaApi.hasParent());
         adjustRepoNavPath();
-        fillRepoContentTable();
     } catch (error) {
         logError(error);
     }
 }
 
 function fillRepoContentTable() {
-    let entryList = javaApi.getEntryListAsArray();
-    statusCount.html(entryList.length);
-    if (entryList.length > 0) {
-        repoContentTableBody.html(layui.laytpl($("#repo-content-table-tr-tpl").html()).render(entryList));
-    } else {
-        repoContentTableBody.html($("#repo-content-table-empty-tpl").html());
+    try {
+        let entryList = javaApi.getEntryListAsArray();
+        statusCount.html(entryList.length);
+        if (entryList.length > 0) {
+            repoContentTableBody.html(layui.laytpl($("#repo-content-table-tr-tpl").html()).render(entryList));
+        } else {
+            repoContentTableBody.html($("#repo-content-table-empty-tpl").html());
+        }
+    } catch (error) {
+        logError(error);
+    }
+}
+
+function showSortIcon(sortKey, direction) {
+    $(".sort-icon").hide();
+    $(".th-responsive[sort-key='" + sortKey + "']").find(".sort-icon." + direction).show();
+}
+
+function sortEntryList(sortKey, direction) {
+    let currentSortIcon = $(".sort-icon:visible");
+    if (typeof (sortKey) == "undefined") {
+        sortKey = "name";
+        if (currentSortIcon.length > 0) {
+            sortKey = currentSortIcon.parents(".th-responsive").attr("sort-key");
+        }
+    }
+    if (typeof (direction) == "undefined") {
+        direction = "up";
+        if (currentSortIcon.length > 0) {
+            direction = currentSortIcon.hasClass("up") ? "up" : "down";
+        }
+    }
+    try {
+        repoContentLoading(false);
+        javaApi.sortEntryList(sortKey, direction);
+    } catch (error) {
+        logError(error);
     }
 }
 
@@ -157,9 +189,14 @@ $(function () {
         adjustRepoNavPath();
     });
 
-    repoContentTable.delegate("th-responsive", "click", function () {
+    repoContentTable.delegate(".th-responsive", "click", function () {
         let sortKey = $(this).attr("sort-key");
-
+        let direction = "up";
+        let currentSortIcon = $(this).find(".sort-icon:visible");
+        if (currentSortIcon.length > 0) {
+            direction = currentSortIcon.hasClass("up") ? "down" : "up";
+        }
+        sortEntryList(sortKey, direction);
     });
 
     $(document).keydown(function (event) {
