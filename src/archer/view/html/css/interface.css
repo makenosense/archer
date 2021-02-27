@@ -160,6 +160,10 @@ body {
 }
 
 #repo-content-table > thead {
+    position: fixed;
+    top: 80px;
+    left: 66px;
+    right: 0;
     border-bottom: 1px solid #515151;
 }
 
@@ -168,9 +172,13 @@ body {
 }
 
 #repo-content-table > thead > tr > th {
+    position: relative;
     border-right: 1px solid #515151;
     padding: 5px 10px;
-    font-size: inherit;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    text-align: left;
 }
 
 #repo-content-table > thead > tr > th > i.sort-icon {
@@ -200,6 +208,7 @@ body {
 }
 
 #repo-content-table > tbody > tr > td {
+    border-right: 1px solid rgba(255, 255, 255, 0);
     padding: 8px 10px;
     font-size: inherit;
     line-height: 21px;
@@ -229,24 +238,28 @@ body {
 }
 
 /*文件列表列宽*/
-.repo-content-td-name {
+th[col-key="name"], td[col-key="name"] {
     width: 430px;
     max-width: 430px;
+    min-width: 430px;
 }
 
-.repo-content-td-mtime {
+th[col-key="mtime"], td[col-key="mtime"] {
     width: 130px;
     max-width: 130px;
+    min-width: 130px;
 }
 
-.repo-content-td-type {
+th[col-key="type"], td[col-key="type"] {
     width: 80px;
     max-width: 80px;
+    min-width: 80px;
 }
 
-.repo-content-td-size {
+th[col-key="size"], td[col-key="size"] {
     width: 80px;
     max-width: 80px;
+    min-width: 80px;
 }
 
 /*文件名响应*/

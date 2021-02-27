@@ -8,7 +8,7 @@
             <item index="0" class="java.lang.String" itemvalue="lay-filter" />
             <item index="1" class="java.lang.String" itemvalue="lay-submit" />
             <item index="2" class="java.lang.String" itemvalue="lay-verify" />
-            <item index="3" class="java.lang.String" itemvalue="sort-key" />
+            <item index="3" class="java.lang.String" itemvalue="col-key" />
           </list>
         </value>
       </option>

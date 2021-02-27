@@ -99,53 +99,44 @@
         <hr/>
 
         <div id="repo-content">
-            <table class="layui-table" id="repo-content-table" lay-skin="nob">
-                <colgroup>
-                    <col style="width: 450px;">
-                    <col style="width: 150px;">
-                    <col style="width: 100px;">
-                    <col style="width: 100px;">
-                    <col>
-                </colgroup>
+            <table id="repo-content-table">
                 <thead>
                 <tr>
-                    <th class="th-responsive" sort-key="name">
+                    <th class="th-responsive" col-key="name">
                         <input type="checkbox" class="tr-checkbox" id="repo-content-check-all"/>
                         <span>文件名</span>
                         <i class="sort-icon up fas fa-sort-alpha-up"></i>
                         <i class="sort-icon down fas fa-sort-alpha-down-alt"></i>
                     </th>
-                    <th class="th-responsive" sort-key="mtime">
+                    <th class="th-responsive" col-key="mtime">
                         <span>修改时间</span>
                         <i class="sort-icon up fas fa-sort-numeric-up"></i>
                         <i class="sort-icon down fas fa-sort-numeric-down-alt"></i>
                     </th>
-                    <th class="th-responsive" sort-key="type">
+                    <th class="th-responsive" col-key="type">
                         <span>类型</span>
                         <i class="sort-icon up fas fa-sort-alpha-up"></i>
                         <i class="sort-icon down fas fa-sort-alpha-down-alt"></i>
                     </th>
-                    <th class="th-responsive" sort-key="size">
+                    <th class="th-responsive" col-key="size">
                         <span>大小</span>
                         <i class="sort-icon up fas fa-sort-amount-up-alt"></i>
                         <i class="sort-icon down fas fa-sort-amount-down"></i>
                     </th>
-                    <th></th>
                 </tr>
                 </thead>
                 <tbody></tbody>
                 <script id="repo-content-table-tr-tpl" type="text/html">
                     {{# layui.each(d, function (index, item) { }}
                     <tr class="repo-content-tr-{{ item.getTypeCode() }}">
-                        <td class="repo-content-td-name" title="{{ item.getName() }}">
+                        <td class="repo-content-td-name" col-key="name" title="{{ item.getName() }}">
                             <input type="checkbox" class="tr-checkbox repo-content-check"/>
                             <i class="{{ item.getIconClass() }}"></i>
                             <span>{{ item.getName() }}</span>
                         </td>
-                        <td class="repo-content-td-mtime">{{ item.getMtime() }}</td>
-                        <td class="repo-content-td-type">{{ item.getType() }}</td>
-                        <td class="repo-content-td-size">{{ item.getSizeString() }}</td>
-                        <td></td>
+                        <td class="repo-content-td-mtime" col-key="mtime">{{ item.getMtime() }}</td>
+                        <td class="repo-content-td-type" col-key="type">{{ item.getType() }}</td>
+                        <td class="repo-content-td-size" col-key="size">{{ item.getSizeString() }}</td>
                     </tr>
                     {{# }); }}
                 </script>

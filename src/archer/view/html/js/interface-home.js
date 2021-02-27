@@ -1,3 +1,4 @@
+let body = $("body");
 let repoOpsOnselect = $("#repo-ops-onselect");
 let repoNav = $("#repo-nav");
 let repoNavPath = $("#repo-nav-path");
@@ -5,6 +6,8 @@ let repoContentTable = $("#repo-content-table");
 let repoContentCheckAll = $("#repo-content-check-all");
 let repoContentTableBody = $("#repo-content-table > tbody");
 let statusCount = $("#repo-content-status-count > span");
+let colResizeData = {};
+let colResizeStage = null;
 
 
 function repoContentLoading(dataReloading = true) {
@@ -88,7 +91,7 @@ function fillRepoContentTable() {
 
 function showSortIcon(sortKey, direction) {
     $(".sort-icon").hide();
-    $(".th-responsive[sort-key='" + sortKey + "']").find(".sort-icon." + direction).show();
+    $(".th-responsive[col-key='" + sortKey + "']").find(".sort-icon." + direction).show();
 }
 
 function sortEntryList(sortKey, direction) {
@@ -96,7 +99,7 @@ function sortEntryList(sortKey, direction) {
     if (typeof (sortKey) == "undefined") {
         sortKey = "name";
         if (currentSortIcon.length > 0) {
-            sortKey = currentSortIcon.parents(".th-responsive").attr("sort-key");
+            sortKey = currentSortIcon.parents(".th-responsive").attr("col-key");
         }
     }
     if (typeof (direction) == "undefined") {
@@ -188,15 +191,66 @@ $(function () {
     $(window).resize(function () {
         adjustRepoNavPath();
     });
+});
+
+$(function () {
+    $(".th-responsive").mousemove(function (e) {
+        let oLeft = $(this).offset().left
+            , pLeft = e.clientX - oLeft;
+        if (!colResizeData.inResizing) {
+            colResizeData.resizeReady = $(this).innerWidth() - pLeft <= 10;
+            body.css("cursor", (colResizeData.resizeReady ? "col-resize" : ""));
+        }
+    }).mouseleave(function () {
+        if (!colResizeData.inResizing) {
+            body.css("cursor", "");
+        }
+    }).mousedown(function (e) {
+        let colKey = $(this).attr("col-key");
+        if (colResizeData.resizeReady) {
+            e.preventDefault();
+            colResizeData.inResizing = true;
+            colResizeData.initOffset = {x: e.clientX, y: e.clientY};
+            colResizeData.resizingItem = $("th[col-key=\"" + colKey + "\"], td[col-key=\"" + colKey + "\"]");
+            colResizeData.initWidth = parseInt($(this).css("width"));
+            colResizeData.minWidth = parseInt($(this).css("min-width"));
+        }
+    });
+
+    body.mousemove(function (e) {
+        if (colResizeData.inResizing) {
+            e.preventDefault();
+            if (colResizeData.resizingItem.length > 0) {
+                let setWidth = colResizeData.initWidth + e.clientX - colResizeData.initOffset.x;
+                setWidth = Math.max(setWidth, colResizeData.minWidth);
+                colResizeData.resizingItem.css("width", setWidth);
+                colResizeData.resizingItem.css("max-width", setWidth);
+            }
+            colResizeStage = 1;
+        }
+    }).mouseup(function (e) {
+        if (colResizeData.inResizing) {
+            e.preventDefault();
+            colResizeData = {};
+            body.css("cursor", "");
+        }
+        if (colResizeStage === 2) {
+            colResizeStage = null;
+        }
+    });
 
     repoContentTable.delegate(".th-responsive", "click", function () {
-        let sortKey = $(this).attr("sort-key");
-        let direction = "up";
-        let currentSortIcon = $(this).find(".sort-icon:visible");
-        if (currentSortIcon.length > 0) {
-            direction = currentSortIcon.hasClass("up") ? "down" : "up";
+        if (colResizeStage === 1) {
+            colResizeStage = 2;
+        } else {
+            let sortKey = $(this).attr("col-key");
+            let direction = "up";
+            let currentSortIcon = $(this).find(".sort-icon:visible");
+            if (currentSortIcon.length > 0) {
+                direction = currentSortIcon.hasClass("up") ? "down" : "up";
+            }
+            sortEntryList(sortKey, direction);
         }
-        sortEntryList(sortKey, direction);
     });
 
     $(document).keydown(function (event) {
