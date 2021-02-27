@@ -177,7 +177,7 @@ $(function () {
 
     repoContentTable.delegate("#tr-new-dir", "click", function (event) {
         event.stopPropagation();
-        $(this).find("input[name='name']").focus();
+        $("#new-dir-name").focus();
     });
 });
 
