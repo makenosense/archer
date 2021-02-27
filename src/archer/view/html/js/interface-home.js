@@ -207,11 +207,16 @@ $(function () {
 });
 
 $(function () {
-    $(".th-responsive").mousemove(function (e) {
+    repoContentTable.find("th").mousemove(function (e) {
         let oLeft = $(this).offset().left
             , pLeft = e.clientX - oLeft;
         if (!colResizeData.inResizing) {
-            colResizeData.resizeReady = $(this).innerWidth() - pLeft <= 10;
+            let selfResizable = $(this).hasClass("th-responsive");
+            let prevResizable = $(this).prev().hasClass("th-responsive");
+            let inSelfResizeRegion = selfResizable && $(this).innerWidth() - pLeft <= 10;
+            let inPrevResizeRegion = prevResizable && pLeft <= 10;
+            colResizeData.resizeReady = inSelfResizeRegion || inPrevResizeRegion;
+            colResizeData.resizeTh = colResizeData.resizeReady && inSelfResizeRegion ? $(this) : $(this).prev();
             body.css("cursor", (colResizeData.resizeReady ? "col-resize" : ""));
         }
     }).mouseleave(function () {
@@ -219,21 +224,21 @@ $(function () {
             body.css("cursor", "");
         }
     }).mousedown(function (e) {
-        let thWidthTotal = function () {
-            let sum = 0;
-            repoContentTable.find("thead > tr > th").each(function () {
-                sum += $(this).outerWidth(true);
-            });
-            return sum;
-        };
-        let colKey = $(this).attr("col-key");
         if (colResizeData.resizeReady) {
+            let thWidthTotal = function () {
+                let sum = 0;
+                repoContentTable.find("thead > tr > th").each(function () {
+                    sum += $(this).outerWidth(true);
+                });
+                return sum;
+            };
+            let colKey = colResizeData.resizeTh.attr("col-key");
             e.preventDefault();
             colResizeData.inResizing = true;
             colResizeData.initOffset = {x: e.clientX, y: e.clientY};
             colResizeData.resizingItems = $("th[col-key='" + colKey + "'], td[col-key='" + colKey + "']");
-            colResizeData.minWidth = parseInt($(this).css("min-width"));
-            colResizeData.initWidth = parseInt($(this).css("width"));
+            colResizeData.minWidth = parseInt(colResizeData.resizeTh.css("min-width"));
+            colResizeData.initWidth = parseInt(colResizeData.resizeTh.css("width"));
             colResizeData.initWidthTotal = thWidthTotal();
         }
     });
