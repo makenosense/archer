@@ -279,7 +279,8 @@ $(function () {
             colResizeStage = 2;
         } else {
             let sortKey = $(this).attr("col-key");
-            let direction = "up";
+            let downDefaultKeys = ["mtime", "size"];
+            let direction = downDefaultKeys.indexOf(sortKey) < 0 ? "up" : "down";
             let currentSortIcon = $(this).find(".sort-icon:visible");
             if (currentSortIcon.length > 0) {
                 direction = currentSortIcon.hasClass("up") ? "down" : "up";
