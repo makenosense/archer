@@ -30,7 +30,7 @@ function switchRepoNavOps(opID, status) {
     }
 }
 
-function sumRepoNavPathNodeWidth() {
+function repoNavPathNodeWidthTotal() {
     let sum = 0;
     repoNavPath.children().each(function () {
         sum += $(this).outerWidth(true);
@@ -44,7 +44,7 @@ function adjustRepoNavPath() {
         repoNavPath.html(layui.laytpl($("#repo-nav-path-node-tpl").html()).render(pathNodeList));
         let pathNodeEllipsis = $("#repo-nav-path-node-ellipsis");
         pathNodeEllipsis.hide();
-        while (repoNavPath.width() < sumRepoNavPathNodeWidth()) {
+        while (repoNavPath.width() < repoNavPathNodeWidthTotal()) {
             pathNodeEllipsis.show();
             $("#repo-nav-path-node-flex").children().first().remove();
         }
@@ -81,6 +81,7 @@ function fillRepoContentTable() {
         statusCount.html(entryList.length);
         if (entryList.length > 0) {
             repoContentTableBody.html(layui.laytpl($("#repo-content-table-tr-tpl").html()).render(entryList));
+            resizeRepoContentTableColumn();
         } else {
             repoContentTableBody.html($("#repo-content-table-empty-tpl").html());
         }
@@ -114,6 +115,18 @@ function sortEntryList(sortKey, direction) {
     } catch (error) {
         logError(error);
     }
+}
+
+function resizeRepoContentTableColumn() {
+    $(".th-responsive").each(function () {
+        let colKey = $(this).attr("col-key");
+        let setWidth = parseInt($(this).css("width"));
+        let columnItems = $("th[col-key='" + colKey + "'], td[col-key='" + colKey + "']");
+        if (columnItems.length > 0) {
+            columnItems.css("max-width", setWidth);
+            columnItems.css("width", setWidth);
+        }
+    });
 }
 
 function allChecked() {
@@ -206,25 +219,36 @@ $(function () {
             body.css("cursor", "");
         }
     }).mousedown(function (e) {
+        let thWidthTotal = function () {
+            let sum = 0;
+            repoContentTable.find("thead > tr > th").each(function () {
+                sum += $(this).outerWidth(true);
+            });
+            return sum;
+        };
         let colKey = $(this).attr("col-key");
         if (colResizeData.resizeReady) {
             e.preventDefault();
             colResizeData.inResizing = true;
             colResizeData.initOffset = {x: e.clientX, y: e.clientY};
-            colResizeData.resizingItem = $("th[col-key=\"" + colKey + "\"], td[col-key=\"" + colKey + "\"]");
-            colResizeData.initWidth = parseInt($(this).css("width"));
+            colResizeData.resizingItems = $("th[col-key='" + colKey + "'], td[col-key='" + colKey + "']");
             colResizeData.minWidth = parseInt($(this).css("min-width"));
+            colResizeData.initWidth = parseInt($(this).css("width"));
+            colResizeData.initWidthTotal = thWidthTotal();
         }
     });
 
     body.mousemove(function (e) {
         if (colResizeData.inResizing) {
             e.preventDefault();
-            if (colResizeData.resizingItem.length > 0) {
-                let setWidth = colResizeData.initWidth + e.clientX - colResizeData.initOffset.x;
-                setWidth = Math.max(setWidth, colResizeData.minWidth);
-                colResizeData.resizingItem.css("width", setWidth);
-                colResizeData.resizingItem.css("max-width", setWidth);
+            if (colResizeData.resizingItems.length > 0) {
+                let theadWidth = repoContentTable.find("thead").innerWidth();
+                let widthDelta = Math.min(e.clientX - colResizeData.initOffset.x,
+                    theadWidth - colResizeData.initWidthTotal);
+                let setWidth = Math.max(colResizeData.initWidth + widthDelta,
+                    colResizeData.minWidth);
+                colResizeData.resizingItems.css("max-width", setWidth);
+                colResizeData.resizingItems.css("width", setWidth);
             }
             colResizeStage = 1;
         }
@@ -237,6 +261,10 @@ $(function () {
         if (colResizeStage === 2) {
             colResizeStage = null;
         }
+    });
+
+    $(window).resize(function () {
+        resizeRepoContentTableColumn();
     });
 
     repoContentTable.delegate(".th-responsive", "click", function () {
