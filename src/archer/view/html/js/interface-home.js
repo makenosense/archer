@@ -40,7 +40,7 @@ function repoNavPathNodeWidthTotal() {
 
 function adjustRepoNavPath() {
     try {
-        let pathNodeList = javaApi.getPathNodeListAsArray();
+        let pathNodeList = javaApi.getPathNodeArray();
         repoNavPath.html(layui.laytpl($("#repo-nav-path-node-tpl").html()).render(pathNodeList));
         let pathNodeEllipsis = $("#repo-nav-path-node-ellipsis");
         pathNodeEllipsis.hide();
@@ -77,7 +77,7 @@ function updateRepoNav() {
 
 function fillRepoContentTable() {
     try {
-        let entryList = javaApi.getEntryListAsArray();
+        let entryList = javaApi.getEntryArray();
         statusCount.html(entryList.length);
         if (entryList.length > 0) {
             repoContentTableBody.html(layui.laytpl($("#repo-content-table-tr-tpl").html()).render(entryList));

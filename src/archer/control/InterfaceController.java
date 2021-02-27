@@ -72,11 +72,23 @@ public class InterfaceController extends BaseController {
     public class JavaApi extends BaseJavaApi {
 
         private Service service;
-        private RepositoryContentData repositoryContentData;
+        private RepositoryContentData repositoryContentData = new RepositoryContentData();
 
         public class RepositoryContentData {
             public List<RepositoryPathNode> pathNodeList = new ArrayList<>();
             public List<RepositoryDirEntry> entryList = new ArrayList<>();
+            private Object[] pathNodeArrayCache;
+            private Object[] entryArrayCache;
+
+            public Object[] getPathNodeArray() {
+                pathNodeArrayCache = pathNodeList.toArray();
+                return pathNodeArrayCache;
+            }
+
+            public Object[] getEntryArray() {
+                entryArrayCache = entryList.toArray();
+                return entryArrayCache;
+            }
         }
 
         public class LoadRepositoryContentService extends Service<Void> {
@@ -134,12 +146,12 @@ public class InterfaceController extends BaseController {
             getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
         }
 
-        public Object[] getPathNodeListAsArray() {
-            return repositoryContentData != null ? repositoryContentData.pathNodeList.toArray() : new Object[0];
+        public Object[] getPathNodeArray() {
+            return repositoryContentData.getPathNodeArray();
         }
 
-        public Object[] getEntryListAsArray() {
-            return repositoryContentData != null ? repositoryContentData.entryList.toArray() : new Object[0];
+        public Object[] getEntryArray() {
+            return repositoryContentData.getEntryArray();
         }
 
         public void sortEntryList(String sortKey, String direction) {
