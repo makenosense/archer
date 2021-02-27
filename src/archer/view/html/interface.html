@@ -46,7 +46,7 @@
                 <i class="fas fa-cloud-upload-alt"></i>
                 上传
             </button>
-            <button type="button" class="layui-btn">
+            <button type="button" class="layui-btn" id="repo-ops-create-dir">
                 <i class="fas fa-folder-plus"></i>
                 新建文件夹
             </button>
@@ -103,7 +103,9 @@
                 <thead>
                 <tr>
                     <th class="th-responsive" col-key="name">
-                        <input type="checkbox" class="tr-checkbox" id="repo-content-check-all"/>
+                        <label>
+                            <input type="checkbox" class="tr-checkbox" id="repo-content-check-all"/>
+                        </label>
                         <span>文件名</span>
                         <i class="sort-icon up fas fa-sort-alpha-up"></i>
                         <i class="sort-icon down fas fa-sort-alpha-down-alt"></i>
@@ -130,7 +132,9 @@
                     {{# layui.each(d, function (index, item) { }}
                     <tr class="repo-content-tr-{{ item.getTypeCode() }}">
                         <td class="repo-content-td-name" col-key="name" title="{{ item.getName() }}">
-                            <input type="checkbox" class="tr-checkbox repo-content-check"/>
+                            <label>
+                                <input type="checkbox" class="tr-checkbox repo-content-check"/>
+                            </label>
                             <i class="{{ item.getIconClass() }}"></i>
                             <span>{{ item.getName() }}</span>
                         </td>
@@ -139,6 +143,24 @@
                         <td class="repo-content-td-size" col-key="size">{{ item.getSizeString() }}</td>
                     </tr>
                     {{# }); }}
+                </script>
+                <script id="repo-content-table-tr-new-dir-tpl" type="text/html">
+                    <tr id="tr-new-dir">
+                        <td class="repo-content-td-name" col-key="name">
+                            <label>
+                                <input type="checkbox" class="tr-checkbox repo-content-check"/>
+                            </label>
+                            <i class="fas fa-folder"></i>
+                            <label>
+                                <input type="text" name="name" style="margin-right: 10px;"/>
+                            </label>
+                            <i class="fas fa-times" style="color: red;"></i>
+                            <i class="fas fa-check" style="color: lightskyblue;"></i>
+                        </td>
+                        <td class="repo-content-td-mtime" col-key="mtime"></td>
+                        <td class="repo-content-td-type" col-key="type"></td>
+                        <td class="repo-content-td-size" col-key="size"></td>
+                    </tr>
                 </script>
                 <script id="repo-content-table-loading-tpl" type="text/html">
                     <div class="repo-content-tbody-div-fill">

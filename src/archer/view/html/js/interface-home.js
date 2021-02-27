@@ -129,7 +129,7 @@ function resizeRepoContentTableColumn() {
     });
 }
 
-function allChecked() {
+function allEntryChecked() {
     let result = true;
     $(".repo-content-check").each(function () {
         if (!$(this).prop("checked")) {
@@ -139,9 +139,9 @@ function allChecked() {
     return result;
 }
 
-function allNotChecked() {
+function noExistingEntryChecked() {
     let result = true;
-    $(".repo-content-check").each(function () {
+    $(".repo-content-check").not("#tr-new-dir .repo-content-check").each(function () {
         if ($(this).prop("checked")) {
             result = false;
         }
@@ -164,6 +164,22 @@ function openDir(name) {
         logError(error);
     }
 }
+
+$(function () {
+    $("#repo-ops-create-dir").click(function () {
+        let trNewDir = $("#tr-new-dir");
+        if (!trNewDir.length) {
+            repoContentTableBody.prepend($("#repo-content-table-tr-new-dir-tpl").html());
+            trNewDir = $("#tr-new-dir");
+        }
+        trNewDir.click();
+    });
+
+    repoContentTable.delegate("#tr-new-dir", "click", function (event) {
+        event.stopPropagation();
+        $(this).find("input[name='name']").focus();
+    });
+});
 
 $(function () {
     repoNav.delegate("#repo-nav-ops-previous:not(.repo-nav-ops-disabled)", "click", function () {
@@ -309,7 +325,7 @@ $(function () {
 
     repoContentTable.delegate(".repo-content-check", "click", function (event) {
         event.stopPropagation();
-        repoContentCheckAll.prop("checked", $(this).prop("checked") && allChecked());
+        repoContentCheckAll.prop("checked", allEntryChecked());
     });
 
     repoContentTable.delegate(".repo-content-check", "change", function (event) {
@@ -317,14 +333,16 @@ $(function () {
         let classSelected = "tr-selected";
         if ($(this).prop("checked")) {
             $(this).parents("tr").addClass(classSelected);
-            repoOpsOnselect.show();
+            if ($(this).parents("tr").attr("id") !== "tr-new-dir") {
+                repoOpsOnselect.show();
+            }
         } else {
             $(this).parents("tr").removeClass(classSelected);
-            if (allNotChecked()) {
+            if (noExistingEntryChecked()) {
                 repoOpsOnselect.hide();
             }
         }
-        repoContentCheckAll.prop("checked", $(this).prop("checked") && allChecked());
+        repoContentCheckAll.prop("checked", allEntryChecked());
     });
 
     repoContentTable.delegate("tbody > tr", "click", function (event) {
