@@ -238,25 +238,32 @@ $(function () {
         }
     });
 
+    let endResizing = function () {
+        colResizeData = {};
+        body.css("cursor", "");
+    };
     body.mousemove(function (e) {
         if (colResizeData.inResizing) {
-            e.preventDefault();
-            if (colResizeData.resizingItems.length > 0) {
-                let theadWidth = repoContentTable.find("thead").innerWidth();
-                let widthDelta = Math.min(e.clientX - colResizeData.initOffset.x,
-                    theadWidth - colResizeData.initWidthTotal);
-                let setWidth = Math.max(colResizeData.initWidth + widthDelta,
-                    colResizeData.minWidth);
-                colResizeData.resizingItems.css("max-width", setWidth);
-                colResizeData.resizingItems.css("width", setWidth);
+            if (e.which > 0) {
+                e.preventDefault();
+                if (colResizeData.resizingItems.length > 0) {
+                    let theadWidth = repoContentTable.find("thead").innerWidth();
+                    let widthDelta = Math.min(e.clientX - colResizeData.initOffset.x,
+                        theadWidth - colResizeData.initWidthTotal);
+                    let setWidth = Math.max(colResizeData.initWidth + widthDelta,
+                        colResizeData.minWidth);
+                    colResizeData.resizingItems.css("max-width", setWidth);
+                    colResizeData.resizingItems.css("width", setWidth);
+                }
+                colResizeStage = 1;
+            } else {
+                endResizing();
             }
-            colResizeStage = 1;
         }
     }).mouseup(function (e) {
         if (colResizeData.inResizing) {
             e.preventDefault();
-            colResizeData = {};
-            body.css("cursor", "");
+            endResizing();
         }
         if (colResizeStage === 2) {
             colResizeStage = null;
