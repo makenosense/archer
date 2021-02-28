@@ -177,8 +177,8 @@ $(function () {
         trNewDir.click();
     });
 
-    repoContentTable.delegate("#tr-new-dir", "click", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate("#tr-new-dir", "click", function (e) {
+        e.stopPropagation();
         $("#new-dir-name").focus();
     });
 
@@ -318,26 +318,26 @@ $(function () {
         }
     });
 
-    body.keydown(function (event) {
-        if (event.ctrlKey && event.which === 65) {
+    body.keydown(function (e) {
+        if (e.ctrlKey && e.which === 65) {
             if ($("#sidebar-tab > .layui-this").attr("id") === "sidebar-repo-home") {
                 $(".repo-content-check").prop("checked", true).change();
             }
         }
     });
 
-    repoContentTable.delegate("#repo-content-check-all", "click", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate("#repo-content-check-all", "click", function (e) {
+        e.stopPropagation();
         $(".repo-content-check").prop("checked", $(this).prop("checked")).change();
     });
 
-    repoContentTable.delegate(".repo-content-check", "click", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate(".repo-content-check", "click", function (e) {
+        e.stopPropagation();
         repoContentCheckAll.prop("checked", allEntryChecked());
     });
 
-    repoContentTable.delegate(".repo-content-check", "change", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate(".repo-content-check", "change", function (e) {
+        e.stopPropagation();
         let classSelected = "tr-selected";
         if ($(this).prop("checked")) {
             $(this).parents("tr").addClass(classSelected);
@@ -353,19 +353,19 @@ $(function () {
         repoContentCheckAll.prop("checked", allEntryChecked());
     });
 
-    repoContentTable.delegate("tbody > tr", "click", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate("tbody > tr", "click", function (e) {
+        e.stopPropagation();
         $(".repo-content-check").prop("checked", false).change();
         $(this).find(".repo-content-check").prop("checked", true).change();
     });
 
-    repoContentTable.delegate("tbody > tr.repo-content-tr-DIR", "dblclick", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate("tbody > tr.repo-content-tr-DIR", "dblclick", function (e) {
+        e.stopPropagation();
         $(this).find("td.repo-content-td-name > span").click();
     });
 
-    repoContentTable.delegate("tbody > tr.repo-content-tr-DIR > td.repo-content-td-name > span", "click", function (event) {
-        event.stopPropagation();
+    repoContentTable.delegate("tbody > tr.repo-content-tr-DIR > td.repo-content-td-name > span", "click", function (e) {
+        e.stopPropagation();
         openDir($(this).parent().attr("title"));
     });
 });

@@ -133,8 +133,8 @@ layui.use(["element", "form", "laytpl"], function () {
         $(this).find(".repo-list-item-remove").show();
     });
 
-    repoList.delegate(".repo-list-item-remove", "click", function (event) {
-        event.stopPropagation();
+    repoList.delegate(".repo-list-item-remove", "click", function (e) {
+        e.stopPropagation();
         try {
             javaApi.removeRepository($(this).parents(".repo-list-item").index());
         } catch (error) {
