@@ -166,8 +166,9 @@ function openDir(name) {
 }
 
 $(function () {
+    let trNewDirSelector = "#tr-new-dir";
+
     $("#repo-ops-create-dir").click(function () {
-        let trNewDirSelector = "#tr-new-dir";
         let trNewDir = $(trNewDirSelector);
         if (!trNewDir.length) {
             repoContentTableBody.prepend($("#repo-content-table-tr-new-dir-tpl").html());
@@ -179,6 +180,12 @@ $(function () {
     repoContentTable.delegate("#tr-new-dir", "click", function (event) {
         event.stopPropagation();
         $("#new-dir-name").focus();
+    });
+
+    body.keydown(function (e) {
+        if (e.which === 27) {
+            $(trNewDirSelector).remove();
+        }
     });
 });
 
@@ -311,8 +318,8 @@ $(function () {
         }
     });
 
-    $(document).keydown(function (event) {
-        if (event.ctrlKey && event.keyCode === 65) {
+    body.keydown(function (event) {
+        if (event.ctrlKey && event.which === 65) {
             if ($("#sidebar-tab > .layui-this").attr("id") === "sidebar-repo-home") {
                 $(".repo-content-check").prop("checked", true).change();
             }
