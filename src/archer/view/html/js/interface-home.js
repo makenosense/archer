@@ -203,7 +203,7 @@ $(function () {
         ];
         let result = true;
         $.each(badCharacters, function (idx, item) {
-            if (name.indexOf(item) > 0) {
+            if (result && name.indexOf(item) > 0) {
                 warn("文件夹名称包含非法字符：" + item);
                 result = false;
             }
