@@ -101,6 +101,10 @@ public class RepositoryPath extends BaseModel {
         return new RepositoryPath(path.resolve(pathString).toString());
     }
 
+    public RepositoryPathNode getPathNode() {
+        return new RepositoryPathNode(path.normalize());
+    }
+
     public LinkedList<RepositoryPathNode> getPathNodeList() {
         Path path = this.path.normalize();
         LinkedList<RepositoryPathNode> pathNodeList = new LinkedList<>();

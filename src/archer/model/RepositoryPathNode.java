@@ -17,4 +17,8 @@ public class RepositoryPathNode extends BaseModel {
     public String getName() {
         return path.getFileName().toString();
     }
+
+    public RepositoryPathNode resolve(String pathString) {
+        return new RepositoryPathNode(path.resolve(pathString));
+    }
 }
