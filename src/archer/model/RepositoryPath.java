@@ -18,7 +18,11 @@ public class RepositoryPath extends BaseModel {
     }
 
     public RepositoryPath(String pathString) {
-        switchAndSaveHistory(Paths.get(pathString));
+        this(Paths.get(pathString));
+    }
+
+    public RepositoryPath(Path path) {
+        switchAndSaveHistory(path.normalize());
     }
 
     private static boolean equals(Path p1, Path p2) {
@@ -98,11 +102,11 @@ public class RepositoryPath extends BaseModel {
     }
 
     public RepositoryPath resolve(String pathString) {
-        return new RepositoryPath(path.resolve(pathString).toString());
+        return new RepositoryPath(path.resolve(pathString));
     }
 
     public RepositoryPathNode getPathNode() {
-        return new RepositoryPathNode(path.normalize());
+        return new RepositoryPathNode(path);
     }
 
     public LinkedList<RepositoryPathNode> getPathNodeList() {

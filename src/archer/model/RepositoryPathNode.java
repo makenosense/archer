@@ -7,7 +7,7 @@ public class RepositoryPathNode extends BaseModel {
     private final Path path;
 
     public RepositoryPathNode(Path path) {
-        this.path = path;
+        this.path = path.normalize();
     }
 
     public String getPath() {
