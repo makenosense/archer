@@ -88,7 +88,7 @@ public class RepositoryPath extends BaseModel {
     }
 
     public boolean goPath(String pathString) {
-        Path newPath = Paths.get(pathString).normalize();
+        Path newPath = path.resolve(pathString).normalize();
         if (!equals(path, newPath)) {
             popUntilCurrent();
             switchAndSaveHistory(newPath);
@@ -97,14 +97,8 @@ public class RepositoryPath extends BaseModel {
         return false;
     }
 
-    public boolean resolve(String pathString) {
-        Path newPath = path.resolve(pathString).normalize();
-        if (!equals(path, newPath)) {
-            popUntilCurrent();
-            switchAndSaveHistory(newPath);
-            return true;
-        }
-        return false;
+    public RepositoryPath resolve(String pathString) {
+        return new RepositoryPath(path.resolve(pathString).toString());
     }
 
     public LinkedList<RepositoryPathNode> getPathNodeList() {
@@ -115,17 +109,6 @@ public class RepositoryPath extends BaseModel {
             path = path.getParent();
         }
         return pathNodeList;
-    }
-
-    @Override
-    public int hashCode() {
-        return toString().hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return (obj instanceof RepositoryPath)
-                && Objects.equals(obj.toString(), toString());
     }
 
     @Override

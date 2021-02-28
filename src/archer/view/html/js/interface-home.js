@@ -157,14 +157,6 @@ function goPath(pathString) {
     }
 }
 
-function openDir(name) {
-    try {
-        javaApi.openDir(name);
-    } catch (error) {
-        logError(error);
-    }
-}
-
 function createDir(name) {
     try {
         javaApi.createDir(name);
@@ -193,6 +185,10 @@ $(function () {
     let newDirNameVerified = function (name) {
         if (name.length > 255) {
             warn("文件夹名称长度大于255个字符");
+            return false;
+        }
+        if (name === "." || name === "..") {
+            warn("受保护的文件夹名称：" + name);
             return false;
         }
         let badCharacters = [
@@ -416,6 +412,6 @@ $(function () {
 
     repoContentTable.delegate("tbody > tr.repo-content-tr-DIR > td.repo-content-td-name > span", "click", function (e) {
         e.stopPropagation();
-        openDir($(this).parent().attr("title"));
+        goPath($(this).parent().attr("title"));
     });
 });
