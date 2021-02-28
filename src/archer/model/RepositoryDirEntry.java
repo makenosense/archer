@@ -107,6 +107,10 @@ public class RepositoryDirEntry extends BaseModel {
         }
     }
 
+    public String getPath() {
+        return entry.getName();
+    }
+
     public String getName() {
         return entry.getName();
     }

@@ -131,7 +131,7 @@
                 <script id="repo-content-table-tr-tpl" type="text/html">
                     {{# layui.each(d, function (index, item) { }}
                     <tr class="repo-content-tr-{{ item.getTypeCode() }}">
-                        <td class="repo-content-td-name" col-key="name" title="{{ item.getName() }}">
+                        <td class="repo-content-td-name" col-key="name" title="{{ item.getPath() }}">
                             <label>
                                 <input type="checkbox" class="tr-checkbox repo-content-check"/>
                             </label>
