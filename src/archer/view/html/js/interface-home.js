@@ -167,10 +167,11 @@ function openDir(name) {
 
 $(function () {
     $("#repo-ops-create-dir").click(function () {
-        let trNewDir = $("#tr-new-dir");
+        let trNewDirSelector = "#tr-new-dir";
+        let trNewDir = $(trNewDirSelector);
         if (!trNewDir.length) {
             repoContentTableBody.prepend($("#repo-content-table-tr-new-dir-tpl").html());
-            trNewDir = $("#tr-new-dir");
+            trNewDir = $(trNewDirSelector);
         }
         trNewDir.click();
     });
