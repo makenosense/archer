@@ -190,9 +190,29 @@ $(function () {
         $("#new-dir-name").focus();
     });
 
+    let newDirNameVerified = function (name) {
+        if (name.length > 255) {
+            warn("文件夹名称长度大于255个字符");
+            return false;
+        }
+        let badCharacters = [
+            '@', '#', '$', '%', '^', '*', '\b',
+            '\t', '{', '}', '|', '\\',
+            ':', ';', '"', '\n', '\r',
+            '<', '>', ',', '?', '/'
+        ];
+        let result = true;
+        $.each(badCharacters, function (idx, item) {
+            if (name.indexOf(item) > 0) {
+                warn("文件夹名称包含非法字符：" + item);
+                result = false;
+            }
+        });
+        return result;
+    };
     let commitNewDir = function () {
         let name = $("#new-dir-name").val();
-        if (name.length > 0) {
+        if (name.length > 0 && newDirNameVerified(name)) {
             $(trNewDirSelector).remove();
             createDir(name);
         }

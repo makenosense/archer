@@ -1,3 +1,7 @@
+function warn(msg) {
+    javaApi.warn(msg);
+}
+
 function logError(error) {
     try {
         javaApi.error(error.toString());
