@@ -165,6 +165,14 @@ function openDir(name) {
     }
 }
 
+function createDir(name) {
+    try {
+        javaApi.createDir(name);
+    } catch (error) {
+        logError(error);
+    }
+}
+
 $(function () {
     let trNewDirSelector = "#tr-new-dir";
 
@@ -182,6 +190,28 @@ $(function () {
         $("#new-dir-name").focus();
     });
 
+    let commitNewDir = function () {
+        let name = $("#new-dir-name").val();
+        if (name.length > 0) {
+            $(trNewDirSelector).remove();
+            createDir(name);
+        }
+    };
+    repoContentTable.delegate("#commit-new-dir", "click", function (e) {
+        e.stopPropagation();
+        commitNewDir();
+    });
+    repoContentTable.delegate("#new-dir-name", "keydown", function (e) {
+        if (e.which === 13) {
+            e.stopPropagation();
+            commitNewDir();
+        }
+    });
+
+    repoContentTable.delegate("#cancel-new-dir", "click", function (e) {
+        e.stopPropagation();
+        $(trNewDirSelector).remove();
+    });
     body.keydown(function (e) {
         if (e.which === 27) {
             $(trNewDirSelector).remove();
