@@ -1,9 +1,9 @@
 package archer.control;
 
 import archer.MainApp;
+import archer.model.RepositoryContentData;
 import archer.model.RepositoryDirEntry;
 import archer.model.RepositoryPath;
-import archer.model.RepositoryPathNode;
 import archer.util.AlertUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
@@ -19,7 +19,6 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class InterfaceController extends BaseController {
@@ -69,29 +68,24 @@ public class InterfaceController extends BaseController {
         return (JSObject) webEngine.executeScript("window");
     }
 
-    public class JavaApi extends BaseJavaApi {
+    private class JavaApi extends BaseJavaApi {
 
-        private Service service;
+        /**
+         * 私有字段
+         */
         private RepositoryContentData repositoryContentData = new RepositoryContentData();
 
-        public class RepositoryContentData {
-            public List<RepositoryPathNode> pathNodeList = new ArrayList<>();
-            public List<RepositoryDirEntry> entryList = new ArrayList<>();
-            private Object[] pathNodeArrayCache;
-            private Object[] entryArrayCache;
-
-            public Object[] getPathNodeArray() {
-                pathNodeArrayCache = pathNodeList.toArray();
-                return pathNodeArrayCache;
-            }
-
-            public Object[] getEntryArray() {
-                entryArrayCache = entryList.toArray();
-                return entryArrayCache;
-            }
+        /**
+         * 私有方法
+         */
+        private void enableRefreshingRepositoryContent() {
+            getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
         }
 
-        public class LoadRepositoryContentService extends Service<Void> {
+        /**
+         * 私有服务类
+         */
+        private class LoadRepositoryContentService extends Service<Void> {
 
             @Override
             protected Task<Void> createTask() {
@@ -118,7 +112,7 @@ public class InterfaceController extends BaseController {
                         } finally {
                             Platform.runLater(() -> {
                                 webView.setDisable(false);
-                                enableRefreshRepositoryContent();
+                                enableRefreshingRepositoryContent();
                             });
                         }
                         return null;
@@ -127,23 +121,31 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        public void loadRepositoryContent() {
-            if (service != null && service.isRunning()) {
-                service.cancel();
-            }
-            try {
-                webView.setDisable(true);
-                service = new LoadRepositoryContentService();
-                service.start();
-            } catch (Exception e) {
-                AlertUtil.error("仓库加载失败", e);
-                webView.setDisable(false);
-                enableRefreshRepositoryContent();
-            }
+        /**
+         * 公共方法 - 关闭仓库
+         */
+        public void closeRepository() {
+            mainApp.showWelcome();
         }
 
-        private void enableRefreshRepositoryContent() {
-            getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
+        /**
+         * 公共方法 - 主页 - 查询
+         */
+        public void loadRepositoryContent() {
+            startExclusiveService(new ExclusiveService() {
+                @Override
+                protected Service createService() throws Exception {
+                    webView.setDisable(true);
+                    return new LoadRepositoryContentService();
+                }
+
+                @Override
+                protected void onCreationFailed(Exception e) {
+                    AlertUtil.error("仓库加载失败", e);
+                    webView.setDisable(false);
+                    enableRefreshingRepositoryContent();
+                }
+            });
         }
 
         public Object[] getPathNodeArray() {
@@ -221,10 +223,6 @@ public class InterfaceController extends BaseController {
             if (path.resolve(name)) {
                 getWindow().call("loadRepoContent");
             }
-        }
-
-        public void closeRepository() {
-            mainApp.showWelcome();
         }
     }
 
