@@ -236,6 +236,25 @@ $(function () {
 });
 
 $(function () {
+    $("#repo-ops-delete-entry").click(function () {
+        let paths = [];
+        $(".repo-content-check:checked").each(function () {
+            let path = $(this).parents(".repo-content-td-name").attr("title");
+            if (typeof (path) != "undefined") {
+                paths.push(path);
+            }
+        });
+        if (paths.length > 0) {
+            try {
+                javaApi.deleteEntry(paths, paths.length);
+            } catch (error) {
+                logError(error);
+            }
+        }
+    });
+});
+
+$(function () {
     repoNav.delegate("#repo-nav-ops-previous:not(.repo-nav-ops-disabled)", "click", function () {
         try {
             javaApi.goPrevious();
