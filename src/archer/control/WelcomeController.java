@@ -66,7 +66,7 @@ public class WelcomeController extends BaseController {
             Platform.runLater(() -> mainApp.hideProgress());
         }
 
-        private void refreshRepositoryList() {
+        private void switchToRepositoryList() {
             getWindow().call("switchToSidebarTab", "sidebar-repo-list");
         }
 
@@ -101,7 +101,7 @@ public class WelcomeController extends BaseController {
                             Platform.runLater(() -> {
                                 AlertUtil.error("出现错误", e);
                                 mainApp.hideProgress();
-                                refreshRepositoryList();
+                                switchToRepositoryList();
                             });
                         }
                         return null;
@@ -122,7 +122,7 @@ public class WelcomeController extends BaseController {
             } catch (Exception e) {
                 AlertUtil.error("仓库添加失败", e);
                 mainApp.hideProgress();
-                refreshRepositoryList();
+                switchToRepositoryList();
             }
         }
 
@@ -142,7 +142,7 @@ public class WelcomeController extends BaseController {
             } catch (Exception e) {
                 AlertUtil.error("仓库打开失败", e);
                 mainApp.hideProgress();
-                refreshRepositoryList();
+                switchToRepositoryList();
             }
         }
 
@@ -154,7 +154,7 @@ public class WelcomeController extends BaseController {
                 AlertUtil.error("仓库移除失败", e);
             } finally {
                 mainApp.hideProgress();
-                refreshRepositoryList();
+                switchToRepositoryList();
             }
         }
     }
