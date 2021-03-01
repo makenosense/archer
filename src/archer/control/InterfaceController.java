@@ -95,14 +95,14 @@ public class InterfaceController extends BaseController {
                         try {
                             repositoryContentData = new RepositoryContentData();
                             repositoryContentData.pathNodeList = path.getPathNodeList();
-                            SVNNodeKind kind = repository.checkPath(path.toString(), -1);
-                            if (kind == SVNNodeKind.DIR) {
-                                ArrayList<SVNDirEntry> entryList = new ArrayList<>();
-                                repository.getDir(path.toString(), -1, null, entryList);
-                                repositoryContentData.entryList = entryList.stream()
-                                        .map(RepositoryDirEntry::new)
-                                        .collect(Collectors.toList());
+                            if (repository.checkPath(path.toString(), -1) != SVNNodeKind.DIR) {
+                                throw new Exception("文件夹不存在");
                             }
+                            ArrayList<SVNDirEntry> entryList = new ArrayList<>();
+                            repository.getDir(path.toString(), -1, null, entryList);
+                            repositoryContentData.entryList = entryList.stream()
+                                    .map(RepositoryDirEntry::new)
+                                    .collect(Collectors.toList());
                             Platform.runLater(() -> {
                                 getWindow().call("updateRepoNav");
                                 getWindow().call("sortEntryList");
