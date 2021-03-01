@@ -57,10 +57,11 @@ public class WelcomeController extends BaseController {
         return (JSObject) webEngine.executeScript("window");
     }
 
-    public class JavaApi extends BaseJavaApi {
+    private class JavaApi extends BaseJavaApi {
 
-        private Service service;
-
+        /**
+         * 私有方法
+         */
         private void hideProgressWithDelay() throws InterruptedException {
             Thread.sleep(100);
             Platform.runLater(() -> mainApp.hideProgress());
@@ -70,7 +71,10 @@ public class WelcomeController extends BaseController {
             getWindow().call("switchToSidebarTab", "sidebar-repo-list");
         }
 
-        public class OpenRepositoryService extends Service<Void> {
+        /**
+         * 私有服务类
+         */
+        private class OpenRepositoryService extends Service<Void> {
 
             private final RepositoryConfig repositoryConfig;
             private final boolean saveBeforeOpen;
@@ -110,40 +114,50 @@ public class WelcomeController extends BaseController {
             }
         }
 
+        /**
+         * 公共方法 - 添加仓库
+         */
         public void addRepository(JSObject params) {
-            if (service != null && service.isRunning()) {
-                service.cancel();
-            }
-            try {
-                mainApp.showProgress(0, "初始化仓库配置");
-                RepositoryConfig repositoryConfig = new RepositoryConfig(params);
-                service = new OpenRepositoryService(repositoryConfig, true);
-                service.start();
-            } catch (Exception e) {
-                AlertUtil.error("仓库添加失败", e);
-                mainApp.hideProgress();
-                switchToRepositoryList();
-            }
+            startExclusiveService(new ExclusiveService() {
+                @Override
+                protected Service createService() throws Exception {
+                    mainApp.showProgress(0, "初始化仓库配置");
+                    RepositoryConfig repositoryConfig = new RepositoryConfig(params);
+                    return new OpenRepositoryService(repositoryConfig, true);
+                }
+
+                @Override
+                protected void onCreationFailed(Exception e) {
+                    AlertUtil.error("仓库添加失败", e);
+                    mainApp.hideProgress();
+                    switchToRepositoryList();
+                }
+            });
         }
 
+        /**
+         * 公共方法 - 仓库列表
+         */
         public Object[] loadRepositoryConfigList() {
             return RepositoryConfig.loadAll().toArray(new RepositoryConfig[0]);
         }
 
         public void openRepository(int index) {
-            if (service != null && service.isRunning()) {
-                service.cancel();
-            }
-            try {
-                mainApp.showProgress(0, "加载仓库配置");
-                RepositoryConfig repositoryConfig = RepositoryConfig.loadAndMoveFirst(index);
-                service = new OpenRepositoryService(repositoryConfig, false);
-                service.start();
-            } catch (Exception e) {
-                AlertUtil.error("仓库打开失败", e);
-                mainApp.hideProgress();
-                switchToRepositoryList();
-            }
+            startExclusiveService(new ExclusiveService() {
+                @Override
+                protected Service createService() throws Exception {
+                    mainApp.showProgress(0, "加载仓库配置");
+                    RepositoryConfig repositoryConfig = RepositoryConfig.loadAndMoveFirst(index);
+                    return new OpenRepositoryService(repositoryConfig, false);
+                }
+
+                @Override
+                protected void onCreationFailed(Exception e) {
+                    AlertUtil.error("仓库打开失败", e);
+                    mainApp.hideProgress();
+                    switchToRepositoryList();
+                }
+            });
         }
 
         public void removeRepository(int index) {

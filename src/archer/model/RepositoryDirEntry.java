@@ -11,11 +11,14 @@ public class RepositoryDirEntry extends BaseModel {
     private static final String TYPE_CODE_DIR = "DIR";
     private static final String TYPE_CODE_FILE = "FILE";
     private static final String TYPE_CODE_UNKNOWN = "UNKNOWN";
+
     private static final String TYPE_DIR = "文件夹";
     private static final String TYPE_FILE = "文件";
     private static final String TYPE_UNKNOWN = "未知";
+
     private static final String ICON_CLASS_DIR = "fas fa-folder";
     private static final String ICON_CLASS_FILE = "far fa-file";
+
     private static final String ICON_CLASS_FILE_WORD = "far fa-file-word";
     private static final String ICON_CLASS_FILE_EXCEL = "far fa-file-excel";
     private static final String ICON_CLASS_FILE_POWERPOINT = "far fa-file-powerpoint";
@@ -160,6 +163,9 @@ public class RepositoryDirEntry extends BaseModel {
         return "-";
     }
 
+    /**
+     * 比较器
+     */
     private static int nameCompare(RepositoryDirEntry o1, RepositoryDirEntry o2) {
         return o1.getName().compareToIgnoreCase(o2.getName());
     }
