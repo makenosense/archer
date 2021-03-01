@@ -57,7 +57,7 @@ public class WelcomeController extends BaseController {
         return (JSObject) webEngine.executeScript("window");
     }
 
-    private class JavaApi extends BaseJavaApi {
+    public class JavaApi extends BaseJavaApi {
 
         /**
          * 私有方法

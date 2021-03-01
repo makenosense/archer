@@ -68,7 +68,7 @@ public class InterfaceController extends BaseController {
         return (JSObject) webEngine.executeScript("window");
     }
 
-    private class JavaApi extends BaseJavaApi {
+    public class JavaApi extends BaseJavaApi {
 
         /**
          * 私有字段
