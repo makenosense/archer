@@ -84,17 +84,26 @@ public class InterfaceController extends BaseController {
             getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
         }
 
-        private ExclusiveService buildNonInteractiveExclusiveService(Service service, String creationFailedMsg) {
+        private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg) {
+            return buildNonInteractiveService(service, creationFailedMsg, null, null);
+        }
+
+        private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg,
+                                                            Integer initProgress, String initProgressText) {
             return new ExclusiveService() {
                 @Override
                 protected Service createService() {
                     webView.setDisable(true);
+                    if (initProgress != null && initProgressText != null) {
+                        mainApp.showProgress(initProgress, initProgressText);
+                    }
                     return service;
                 }
 
                 @Override
                 protected void onCreationFailed(Exception e) {
                     AlertUtil.error(creationFailedMsg, e);
+                    mainApp.hideProgress();
                     webView.setDisable(false);
                     enableRefreshingRepositoryContent();
                 }
@@ -198,6 +207,7 @@ public class InterfaceController extends BaseController {
             @Override
             protected void onEditingComplete() {
                 Platform.runLater(() -> {
+                    mainApp.hideProgress();
                     webView.setDisable(false);
                     enableRefreshingRepositoryContent();
                     getWindow().call("loadRepoContent");
@@ -216,7 +226,7 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 主页 - 查询
          */
         public void loadRepositoryContent() {
-            startExclusiveService(buildNonInteractiveExclusiveService(
+            startExclusiveService(buildNonInteractiveService(
                     new LoadRepositoryContentService(), "仓库加载失败"));
         }
 
@@ -296,7 +306,7 @@ public class InterfaceController extends BaseController {
          */
         public void createDir(String name) {
             String errorMsg = "文件夹新建失败";
-            startExclusiveService(buildNonInteractiveExclusiveService(
+            startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("createDir", errorMsg) {
                         @Override
                         protected void doEditing(ISVNEditor editor) throws Exception {
@@ -311,7 +321,7 @@ public class InterfaceController extends BaseController {
                 pathList.add((String) pathArray.getSlot(idx++));
             }
             String errorMsg = "删除失败";
-            startExclusiveService(buildNonInteractiveExclusiveService(
+            startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("deleteEntry", errorMsg) {
                         @Override
                         protected void doEditing(ISVNEditor editor) throws Exception {

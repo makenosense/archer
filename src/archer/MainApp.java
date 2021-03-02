@@ -109,9 +109,7 @@ public class MainApp extends Application {
 
     private void initAndShowStage(Stage stage, String fxmlPath) {
         try {
-            if (stage.isShowing()) {
-                stage.hide();
-            }
+            stage.hide();
             stage.getIcons().clear();
             stage.getIcons().add(new Image(getClass().getResource("view/html/img/logo.png").toExternalForm()));
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
