@@ -1,12 +1,14 @@
 package archer.util;
 
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Optional;
 
 public class AlertUtil {
 
@@ -93,5 +95,22 @@ public class AlertUtil {
         alert.setHeaderText(headerText);
         alert.setContentText(contentText);
         alert.showAndWait();
+    }
+
+    public static boolean confirm(String contentText) {
+        return confirm(null, contentText);
+    }
+
+    public static boolean confirm(String headerText, String contentText) {
+        return confirm("确认", headerText, contentText);
+    }
+
+    public static boolean confirm(String title, String headerText, String contentText) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(headerText);
+        alert.setContentText(contentText);
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 }
