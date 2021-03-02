@@ -41,4 +41,8 @@ public abstract class BaseJavaApi {
     public void info(String msg) {
         AlertUtil.info(msg);
     }
+
+    public boolean confirm(String msg) {
+        return AlertUtil.confirm(msg);
+    }
 }

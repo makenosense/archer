@@ -244,12 +244,18 @@ $(function () {
                 paths.push(path);
             }
         });
-        if (paths.length > 0) {
-            try {
-                javaApi.deleteEntry(paths, paths.length);
-            } catch (error) {
-                logError(error);
+        try {
+            if (paths.length > 0) {
+                let confirmMsg = "确定要删除" + paths.length + "个项目吗？";
+                if (paths.length === 1) {
+                    confirmMsg = "确定要删除“" + paths[0] + "”吗？";
+                }
+                if (javaApi.confirm(confirmMsg)) {
+                    javaApi.deleteEntry(paths, paths.length);
+                }
             }
+        } catch (error) {
+            logError(error);
         }
     });
 });
