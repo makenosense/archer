@@ -134,7 +134,7 @@ public class InterfaceController extends BaseController {
         public void loadRepositoryContent() {
             startExclusiveService(new ExclusiveService() {
                 @Override
-                protected Service createService() throws Exception {
+                protected Service createService() {
                     webView.setDisable(true);
                     return new LoadRepositoryContentService();
                 }
