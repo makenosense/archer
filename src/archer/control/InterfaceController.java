@@ -15,10 +15,12 @@ import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 public class InterfaceController extends BaseController {
@@ -82,6 +84,23 @@ public class InterfaceController extends BaseController {
             getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
         }
 
+        private ExclusiveService buildNonInteractiveExclusiveService(Service service, String creationFailedMsg) {
+            return new ExclusiveService() {
+                @Override
+                protected Service createService() {
+                    webView.setDisable(true);
+                    return service;
+                }
+
+                @Override
+                protected void onCreationFailed(Exception e) {
+                    AlertUtil.error(creationFailedMsg, e);
+                    webView.setDisable(false);
+                    enableRefreshingRepositoryContent();
+                }
+            };
+        }
+
         /**
          * 私有服务类
          */
@@ -121,6 +140,71 @@ public class InterfaceController extends BaseController {
             }
         }
 
+        private abstract class EditingService extends Service<Void> {
+
+            protected final String logMessage;
+            protected final String errorMessage;
+
+            protected EditingService(String logMessage, String errorMessage) {
+                this.logMessage = logMessage;
+                this.errorMessage = errorMessage;
+            }
+
+            protected abstract void doEditing(ISVNEditor editor) throws Exception;
+
+            protected void onEditingFailed(Exception e) {
+                Platform.runLater(() -> AlertUtil.error(errorMessage, e));
+            }
+
+            protected void onEditingSuccess() {
+            }
+
+            protected void onEditingComplete() {
+            }
+
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        ISVNEditor editor = null;
+                        try {
+                            editor = repository.getCommitEditor(logMessage, null);
+                            editor.openRoot(-1);
+                            doEditing(editor);
+                            editor.closeDir();
+                            editor.closeEdit();
+                            onEditingSuccess();
+                        } catch (Exception e) {
+                            if (editor != null) {
+                                editor.abortEdit();
+                            }
+                            onEditingFailed(e);
+                        } finally {
+                            onEditingComplete();
+                        }
+                        return null;
+                    }
+                };
+            }
+        }
+
+        private abstract class EditingWithRefreshingService extends EditingService {
+
+            protected EditingWithRefreshingService(String logMessage, String errorMessage) {
+                super(logMessage, errorMessage);
+            }
+
+            @Override
+            protected void onEditingComplete() {
+                Platform.runLater(() -> {
+                    webView.setDisable(false);
+                    enableRefreshingRepositoryContent();
+                    getWindow().call("loadRepoContent");
+                });
+            }
+        }
+
         /**
          * 公共方法 - 关闭仓库
          */
@@ -132,20 +216,8 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 主页 - 查询
          */
         public void loadRepositoryContent() {
-            startExclusiveService(new ExclusiveService() {
-                @Override
-                protected Service createService() {
-                    webView.setDisable(true);
-                    return new LoadRepositoryContentService();
-                }
-
-                @Override
-                protected void onCreationFailed(Exception e) {
-                    AlertUtil.error("仓库加载失败", e);
-                    webView.setDisable(false);
-                    enableRefreshingRepositoryContent();
-                }
-            });
+            startExclusiveService(buildNonInteractiveExclusiveService(
+                    new LoadRepositoryContentService(), "仓库加载失败"));
         }
 
         public Object[] getPathNodeArray() {
@@ -219,10 +291,35 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        public void openDir(String name) {
-            if (path.resolve(name)) {
-                getWindow().call("loadRepoContent");
+        /**
+         * 公共方法 - 主页 - 编辑
+         */
+        public void createDir(String name) {
+            String errorMsg = "文件夹新建失败";
+            startExclusiveService(buildNonInteractiveExclusiveService(
+                    new EditingWithRefreshingService("createDir", errorMsg) {
+                        @Override
+                        protected void doEditing(ISVNEditor editor) throws Exception {
+                            editor.addDir(path.resolve(name).toString(), null, -1);
+                        }
+                    }, errorMsg));
+        }
+
+        public void deleteEntry(JSObject pathArray, int length) {
+            LinkedList<String> pathList = new LinkedList<>();
+            for (int idx = 0; idx < length; ) {
+                pathList.add((String) pathArray.getSlot(idx++));
             }
+            String errorMsg = "删除失败";
+            startExclusiveService(buildNonInteractiveExclusiveService(
+                    new EditingWithRefreshingService("deleteEntry", errorMsg) {
+                        @Override
+                        protected void doEditing(ISVNEditor editor) throws Exception {
+                            for (String p : pathList) {
+                                editor.deleteEntry(path.resolve(p).toString(), -1);
+                            }
+                        }
+                    }, errorMsg));
         }
     }
 

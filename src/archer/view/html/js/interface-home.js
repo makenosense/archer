@@ -159,7 +159,21 @@ function goPath(pathString) {
 
 function createDir(name) {
     try {
-        javaApi.createDir(name);
+        repoContentLoading();
+        setTimeout(function () {
+            javaApi.createDir(name);
+        }, 1);
+    } catch (error) {
+        logError(error);
+    }
+}
+
+function deleteEntry(paths) {
+    try {
+        repoContentLoading();
+        setTimeout(function () {
+            javaApi.deleteEntry(paths, paths.length);
+        }, 1);
     } catch (error) {
         logError(error);
     }
@@ -251,7 +265,7 @@ $(function () {
                     confirmMsg = "确定要删除“" + paths[0] + "”吗？";
                 }
                 if (javaApi.confirm(confirmMsg)) {
-                    javaApi.deleteEntry(paths, paths.length);
+                    deleteEntry(paths);
                 }
             }
         } catch (error) {
