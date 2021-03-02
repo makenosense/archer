@@ -1,6 +1,7 @@
 package archer.control;
 
 import archer.util.AlertUtil;
+import javafx.application.Platform;
 import javafx.concurrent.Service;
 
 public abstract class BaseJavaApi {
@@ -11,15 +12,18 @@ public abstract class BaseJavaApi {
 
         protected abstract Service createService() throws Exception;
 
-        protected abstract void onCreationFailed(Exception e);
+        protected void onCreationFailed(Exception e) {
+            Platform.runLater(() -> AlertUtil.error("出现错误", e));
+        }
 
         public void start() {
             try {
-                if (service != null && service.isRunning()) {
-                    service.cancel();
-                }
+                Service oldService = service;
                 service = createService();
                 service.start();
+                if (oldService != null && oldService.isRunning()) {
+                    oldService.cancel();
+                }
             } catch (Exception e) {
                 onCreationFailed(e);
             }
