@@ -160,9 +160,7 @@ function goPath(pathString) {
 function createDir(name) {
     try {
         repoContentLoading();
-        setTimeout(function () {
-            javaApi.createDir(name);
-        }, 1);
+        javaApi.createDir(name);
     } catch (error) {
         logError(error);
     }
@@ -171,9 +169,7 @@ function createDir(name) {
 function deleteEntry(paths) {
     try {
         repoContentLoading();
-        setTimeout(function () {
-            javaApi.deleteEntry(paths, paths.length);
-        }, 1);
+        javaApi.deleteEntry(paths, paths.length);
     } catch (error) {
         logError(error);
     }
