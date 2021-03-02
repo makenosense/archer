@@ -28,8 +28,8 @@ public class AlertUtil {
         alert.showAndWait();
     }
 
-    public static void error(String contentText, Exception e) {
-        error(null, contentText, e);
+    public static void error(String headerText, Exception e) {
+        error(headerText, e.getMessage(), e);
     }
 
     public static void error(String headerText, String contentText, Exception e) {
