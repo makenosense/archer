@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RepositoryContentData {
+
     public List<RepositoryPathNode> pathNodeList = new ArrayList<>();
     public List<RepositoryDirEntry> entryList = new ArrayList<>();
+
     private Object[] pathNodeArrayCache;
     private Object[] entryArrayCache;
 
