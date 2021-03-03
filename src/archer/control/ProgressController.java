@@ -34,7 +34,7 @@ public class ProgressController extends BaseController {
         progressBar.setProgress(value);
     }
 
-    public void setProgressText(String text) {
+    public void setText(String text) {
         label.setText(text);
     }
 }

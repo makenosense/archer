@@ -118,19 +118,20 @@ public class MainApp extends Application {
         return files != null ? files : new LinkedList<>();
     }
 
-    private void showProgress() {
+    public void showProgress(double value, String text) {
         initAndShowStage(progressStage, "view/fxml/Progress.fxml");
         progressController = (ProgressController) progressStage.getScene().getUserData();
+        progressController.setProgress(value);
+        progressController.setText(text);
     }
 
-    private void showProgress(double value) {
-        showProgress();
-        setProgress(value);
+    public void setProgress(double value, String text) {
+        progressController.setProgress(value);
+        progressController.setText(text);
     }
 
-    public void showProgress(double value, String text) {
-        showProgress(value);
-        setProgressText(text);
+    public void hideProgress() {
+        progressStage.hide();
     }
 
     private void initAndShowStage(Stage stage, String fxmlPath) {
@@ -154,23 +155,6 @@ public class MainApp extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    public void setProgressText(String text) {
-        progressController.setProgressText(text);
-    }
-
-    public void setProgress(double value) {
-        progressController.setProgress(value);
-    }
-
-    public void setProgress(double value, String text) {
-        setProgressText(text);
-        setProgress(value);
-    }
-
-    public void hideProgress() {
-        progressStage.hide();
     }
 
     public void exit() {
