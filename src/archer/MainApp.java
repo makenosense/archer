@@ -11,6 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
@@ -20,6 +22,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MainApp extends Application {
     public static final String APP_NAME = "Archer";
@@ -90,6 +95,27 @@ public class MainApp extends Application {
         initAndShowStage(primaryStage, "view/fxml/Interface.fxml");
         ((InterfaceController) primaryStage.getScene().getUserData()).setRepository(repository);
         primaryStage.setTitle(APP_NAME + " - " + repositoryConfig.getTitle());
+    }
+
+    public File chooseDirectory() {
+        return chooseDirectory("请选择文件夹");
+    }
+
+    public File chooseDirectory(String title) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle(title);
+        return directoryChooser.showDialog(primaryStage);
+    }
+
+    public List<File> chooseMultipleFiles() {
+        return chooseMultipleFiles("请选择文件（多选）");
+    }
+
+    public List<File> chooseMultipleFiles(String title) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle(title);
+        List<File> files = fileChooser.showOpenMultipleDialog(primaryStage);
+        return files != null ? files : new LinkedList<>();
     }
 
     private void showProgress() {

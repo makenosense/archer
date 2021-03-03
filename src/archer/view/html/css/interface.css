@@ -93,7 +93,7 @@ body {
     background-color: #515151;
 }
 
-#repo-ops-onselect {
+#repo-ops-on-select {
     display: none;
 }
 
@@ -239,27 +239,27 @@ body {
 
 /*文件列表列宽*/
 th[col-key="name"], td[col-key="name"] {
-    width: 430px;
-    max-width: 430px;
-    min-width: 430px;
+    width: 450px;
+    max-width: 450px;
+    min-width: 450px;
 }
 
 th[col-key="mtime"], td[col-key="mtime"] {
-    width: 130px;
-    max-width: 130px;
-    min-width: 130px;
+    width: 160px;
+    max-width: 160px;
+    min-width: 160px;
 }
 
 th[col-key="type"], td[col-key="type"] {
-    width: 80px;
-    max-width: 80px;
-    min-width: 80px;
+    width: 100px;
+    max-width: 100px;
+    min-width: 100px;
 }
 
 th[col-key="size"], td[col-key="size"] {
-    width: 80px;
-    max-width: 80px;
-    min-width: 80px;
+    width: 100px;
+    max-width: 100px;
+    min-width: 100px;
 }
 
 /*文件名响应*/

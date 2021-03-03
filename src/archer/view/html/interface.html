@@ -42,15 +42,17 @@
 
     <div class="content-item">
         <div id="repo-ops" class="layui-btn-group">
-            <button type="button" class="layui-btn">
-                <i class="fas fa-cloud-upload-alt"></i>
-                上传
-            </button>
-            <button type="button" class="layui-btn" id="repo-ops-create-dir">
-                <i class="fas fa-folder-plus"></i>
-                新建文件夹
-            </button>
-            <span id="repo-ops-onselect">
+            <span id="repo-ops-under-dir">
+                <button type="button" class="layui-btn" id="repo-ops-upload">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    上传
+                </button>
+                <button type="button" class="layui-btn" id="repo-ops-create-dir">
+                    <i class="fas fa-folder-plus"></i>
+                    新建文件夹
+                </button>
+            </span>
+            <span id="repo-ops-on-select">
                 <button type="button" class="layui-btn">
                     <i class="fas fa-cloud-download-alt"></i>
                     下载

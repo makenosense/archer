@@ -1,5 +1,5 @@
 let body = $("body");
-let repoOpsOnselect = $("#repo-ops-onselect");
+let repoOpsOnselect = $("#repo-ops-on-select");
 let repoNav = $("#repo-nav");
 let repoNavPath = $("#repo-nav-path");
 let repoContentTable = $("#repo-content-table");
@@ -174,6 +174,16 @@ function deleteEntry(paths) {
         logError(error);
     }
 }
+
+$(function () {
+    $("#repo-ops-upload").click(function () {
+        try {
+            javaApi.upload();
+        } catch (error) {
+            logError(error);
+        }
+    });
+});
 
 $(function () {
     let trNewDirSelector = "#tr-new-dir";
