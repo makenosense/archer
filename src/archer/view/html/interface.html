@@ -9,7 +9,7 @@
     <link rel="stylesheet" type="text/css" href="fontawesome/css/all.min.css"/>
     <link rel="stylesheet" type="text/css" href="css/interface.css"/>
     <script type="text/javascript" src="js/jquery-3.5.1.min.js"></script>
-    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </head>
 
 <body>
@@ -45,10 +45,16 @@
     <div class="content-item">
         <div id="repo-ops" class="layui-btn-group">
             <span id="repo-ops-under-dir">
-                <button type="button" class="layui-btn" id="repo-ops-upload">
-                    <i class="fas fa-cloud-upload-alt"></i>
-                    上传
-                </button>
+                <span class="dropdown">
+                    <button type="button" class="layui-btn dropdown-toggle">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        上传
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-dark">
+                        <li><button type="button" class="dropdown-item" id="repo-ops-upload-dir">文件夹</button></li>
+                        <li><button type="button" class="dropdown-item" id="repo-ops-upload-files">文件</button></li>
+                    </ul>
+                </span>
                 <button type="button" class="layui-btn" id="repo-ops-create-dir">
                     <i class="fas fa-folder-plus"></i>
                     新建文件夹

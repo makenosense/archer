@@ -176,9 +176,16 @@ function deleteEntry(paths) {
 }
 
 $(function () {
-    $("#repo-ops-upload").click(function () {
+    $("#repo-ops-upload-dir").click(function () {
         try {
-            javaApi.upload();
+            javaApi.uploadDir();
+        } catch (error) {
+            logError(error);
+        }
+    });
+    $("#repo-ops-upload-files").click(function () {
+        try {
+            javaApi.uploadFiles();
         } catch (error) {
             logError(error);
         }
