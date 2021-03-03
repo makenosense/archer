@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.*?>
+<AnchorPane xmlns:fx="http://javafx.com/fxml" style="-fx-background-color: #3c3f41;"
+            xmlns="http://javafx.com/javafx" fx:controller="archer.control.DoubleProgressController">
+    <ProgressBar fx:id="progressBar"
+                 AnchorPane.bottomAnchor="110.0" AnchorPane.leftAnchor="20.0"
+                 AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="25.0"/>
+    <Label fx:id="label" textFill="#aaaaaa"
+           AnchorPane.bottomAnchor="90.0" AnchorPane.leftAnchor="20.0"
+           AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="45.0"/>
+    <ProgressBar fx:id="subProgressBar"
+                 AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="20.0"
+                 AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="85.0"/>
+    <Label fx:id="subLabel" textFill="#aaaaaa"
+           AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="20.0"
+           AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="105.0"/>
+</AnchorPane>

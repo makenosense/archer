@@ -12,6 +12,7 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.util.Pair;
 import netscape.javascript.JSObject;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
@@ -85,17 +86,24 @@ public class InterfaceController extends BaseController {
         }
 
         private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg) {
-            return buildNonInteractiveService(service, creationFailedMsg, null, null);
+            return buildNonInteractiveService(service, creationFailedMsg, null, null, null);
         }
 
         private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg,
-                                                            Integer initProgress, String initProgressText) {
+                                                            String progressTitle, Pair<Integer, String> progress, Pair<Integer, String> subProgress) {
             return new ExclusiveService() {
                 @Override
                 protected Service createService() {
                     webView.setDisable(true);
-                    if (initProgress != null && initProgressText != null) {
-                        mainApp.showProgress(initProgress, initProgressText);
+                    if (progress != null) {
+                        if (subProgress != null) {
+                            mainApp.showProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
+                        } else {
+                            mainApp.showProgress(progress.getKey(), progress.getValue());
+                        }
+                        if (progressTitle != null) {
+                            mainApp.setProgressTitle(progressTitle);
+                        }
                     }
                     return service;
                 }

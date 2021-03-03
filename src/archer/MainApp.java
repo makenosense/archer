@@ -1,6 +1,7 @@
 package archer;
 
 import archer.control.BaseController;
+import archer.control.DoubleProgressController;
 import archer.control.InterfaceController;
 import archer.control.ProgressController;
 import archer.model.RepositoryConfig;
@@ -125,9 +126,28 @@ public class MainApp extends Application {
         progressController.setText(text);
     }
 
+    public void showProgress(double value, String text, double subValue, String subText) {
+        initAndShowStage(progressStage, "view/fxml/DoubleProgress.fxml");
+        progressController = (ProgressController) progressStage.getScene().getUserData();
+        progressController.setProgress(value);
+        progressController.setText(text);
+        ((DoubleProgressController) progressController).setSubProgress(subValue);
+        ((DoubleProgressController) progressController).setSubText(subText);
+    }
+
     public void setProgress(double value, String text) {
         progressController.setProgress(value);
         progressController.setText(text);
+    }
+
+    public void setProgress(double value, String text, double subValue, String subText) {
+        setProgress(value, text);
+        ((DoubleProgressController) progressController).setSubProgress(subValue);
+        ((DoubleProgressController) progressController).setSubText(subText);
+    }
+
+    public void setProgressTitle(String title) {
+        progressStage.setTitle(title);
     }
 
     public void hideProgress() {
