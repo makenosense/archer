@@ -24,7 +24,11 @@ public class UploadTransactionData {
         this.fileList = fileList;
         totalSize = 0;
         for (File file : fileList) {
-            fileKindMap.put(file, repository.checkPath(RepositoryFilePathMap.get(file), -1));
+            SVNNodeKind kind = repository.checkPath(RepositoryFilePathMap.get(file), -1);
+            if (kind == SVNNodeKind.DIR) {
+                throw new Exception("存在同名文件夹，不能上传文件：" + file.getCanonicalPath());
+            }
+            fileKindMap.put(file, kind);
             fileSizeMap.put(file, file.length());
             prevSizeMap.put(file, totalSize);
             totalSize += file.length();

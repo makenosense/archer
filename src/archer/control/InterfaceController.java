@@ -380,9 +380,7 @@ public class InterfaceController extends BaseController {
 
                             String repositoryFilePath = repositoryFilePathMap.get(file);
                             SVNNodeKind fileKind = uploadTransactionData.getKind(file);
-                            if (fileKind == SVNNodeKind.DIR) {
-                                throw new Exception(errorMessage + "（存在同名文件夹）：" + file.getCanonicalPath());
-                            } else if (fileKind == SVNNodeKind.FILE) {
+                            if (fileKind == SVNNodeKind.FILE) {
                                 editor.openFile(repositoryFilePath, -1);
                             } else {
                                 editor.addFile(repositoryFilePath, null, -1);
