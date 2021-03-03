@@ -1,5 +1,6 @@
 package archer.model;
 
+import archer.util.FileUtil;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
 
@@ -138,29 +139,7 @@ public class RepositoryDirEntry extends BaseModel {
     }
 
     public String getSizeString() {
-        if (TYPE_CODE_FILE.equals(getTypeCode())) {
-            double size = getSize();
-            int unitSize = 1 << 10;
-            String unit = "B";
-            if (size > unitSize) {
-                size /= unitSize;
-                unit = "KB";
-                if (size > unitSize) {
-                    size /= unitSize;
-                    unit = "MB";
-                    if (size > unitSize) {
-                        size /= unitSize;
-                        unit = "GB";
-                        if (size > unitSize) {
-                            size /= unitSize;
-                            unit = "TB";
-                        }
-                    }
-                }
-            }
-            return String.format("%.2f %s", size, unit);
-        }
-        return "-";
+        return TYPE_CODE_FILE.equals(getTypeCode()) ? FileUtil.getSizeString(getSize()) : "-";
     }
 
     /**
