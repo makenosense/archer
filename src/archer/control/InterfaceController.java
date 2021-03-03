@@ -4,7 +4,9 @@ import archer.MainApp;
 import archer.model.RepositoryContentData;
 import archer.model.RepositoryDirEntry;
 import archer.model.RepositoryPath;
+import archer.model.UploadTransactionData;
 import archer.util.AlertUtil;
+import archer.util.FileUtil;
 import javafx.application.Platform;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -18,10 +20,11 @@ import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.SVNRepository;
+import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.LinkedList;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class InterfaceController extends BaseController {
@@ -77,6 +80,7 @@ public class InterfaceController extends BaseController {
          * 私有字段
          */
         private RepositoryContentData repositoryContentData = new RepositoryContentData();
+        private UploadTransactionData uploadTransactionData;
 
         /**
          * 私有方法
@@ -215,6 +219,7 @@ public class InterfaceController extends BaseController {
             @Override
             protected void onEditingComplete() {
                 Platform.runLater(() -> {
+                    uploadTransactionData = null;
                     mainApp.hideProgress();
                     webView.setDisable(false);
                     enableRefreshingRepositoryContent();
@@ -312,6 +317,88 @@ public class InterfaceController extends BaseController {
         /**
          * 公共方法 - 主页 - 编辑
          */
+        public void uploadDir() {
+            File dir = mainApp.chooseDirectory();
+            //TODO
+        }
+
+        public void uploadFiles() throws Exception {
+            List<File> files = mainApp.chooseMultipleFiles().stream()
+                    .filter(file -> !file.isHidden())
+                    .collect(Collectors.toList());
+            if (!files.isEmpty()) {
+                Map<File, String> repositoryFilePathMap = new HashMap<>();
+                for (File file : files) {
+                    repositoryFilePathMap.put(file, path.resolve(file.getName()).toString());
+                }
+                uploadFiles(files, repositoryFilePathMap);
+            }
+        }
+
+        private void checkFiles(List<File> files, String errorMsg) throws Exception {
+            for (File file : files) {
+                if (!file.canRead()) {
+                    throw new Exception(errorMsg + "（文件不可读）：" + file.getCanonicalPath());
+                }
+                if (!file.isFile()) {
+                    throw new Exception(errorMsg + "（文件不存在）：" + file.getCanonicalPath());
+                }
+            }
+        }
+
+        private void uploadFiles(List<File> files, Map<File, String> repositoryFilePathMap) throws Exception {
+            if (uploadTransactionData == null) {
+                uploadTransactionData = new UploadTransactionData(repository, files, repositoryFilePathMap);
+                String errorMsg = "文件上传失败";
+                String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
+                String subProgressTextTpl = "[%s] 上传进度：%s / %s";
+                checkFiles(files, errorMsg);
+                startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
+                    private void updateProgress(File file, long sent) {
+                        int fileIdx = uploadTransactionData.indexOf(file);
+                        int uploadLength = uploadTransactionData.length();
+                        long totalSent = uploadTransactionData.getPrevSize(file) + sent;
+                        long totalSize = uploadTransactionData.getTotalSize();
+                        double progressValue = 1. * totalSent / totalSize;
+                        String progressPercent = String.format("%.1f%%", 100 * progressValue);
+                        String fileName = file.getName();
+                        long fileSize = uploadTransactionData.getSize(file);
+                        double subProgressValue = 1. * sent / fileSize;
+                        String subProgressPercent = String.format("%.1f%%", 100 * subProgressValue);
+                        String sentString = FileUtil.getSizeString(sent);
+                        String fileSizeString = FileUtil.getSizeString(fileSize);
+                        Platform.runLater(() -> mainApp.setProgress(
+                                progressValue, String.format(progressTextTpl, progressPercent, fileIdx + 1, uploadLength, fileName),
+                                subProgressValue, String.format(subProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
+                    }
+
+                    @Override
+                    protected void doEditing(ISVNEditor editor) throws Exception {
+                        for (File file : uploadTransactionData.fileList()) {
+                            long sent = 0;
+                            updateProgress(file, sent);
+
+                            String repositoryFilePath = repositoryFilePathMap.get(file);
+                            SVNNodeKind fileKind = uploadTransactionData.getKind(file);
+                            if (fileKind == SVNNodeKind.DIR) {
+                                throw new Exception(errorMessage + "（存在同名文件夹）：" + file.getCanonicalPath());
+                            } else if (fileKind == SVNNodeKind.FILE) {
+                                editor.openFile(repositoryFilePath, -1);
+                            } else {
+                                editor.addFile(repositoryFilePath, null, -1);
+                            }
+                            editor.applyTextDelta(repositoryFilePath, null);
+                            SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
+                            String checkSum = deltaGenerator.sendDelta(repositoryFilePath, new FileInputStream(file), editor, true);
+                            editor.closeFile(repositoryFilePath, checkSum);
+
+                            updateProgress(file, sent);
+                        }
+                    }
+                }, errorMsg, "上传进度", new Pair<>(-1, "文件上传中"), new Pair<>(-1, "文件上传中")));
+            }
+        }
+
         public void createDir(String name) {
             String errorMsg = "文件夹新建失败";
             startExclusiveService(buildNonInteractiveService(
