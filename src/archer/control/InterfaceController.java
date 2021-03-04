@@ -352,7 +352,8 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        private void collectUploadItems(File item, RepositoryPathNode itemPathNode, List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
+        private void collectUploadItems(File item, RepositoryPathNode itemPathNode,
+                                        List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
             if (item.exists()) {
                 if (item.isFile()) {
                     files.add(item);
@@ -363,7 +364,8 @@ public class InterfaceController extends BaseController {
                     File[] children = item.listFiles();
                     children = children != null ? children : new File[0];
                     Arrays.asList(children).forEach(
-                            child -> collectUploadItems(child, itemPathNode.resolve(child.getName()), dirs, files, uploadPathMap));
+                            child -> collectUploadItems(child, itemPathNode.resolve(child.getName()),
+                                    dirs, files, uploadPathMap));
                 }
             }
         }
