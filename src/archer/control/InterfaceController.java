@@ -14,13 +14,21 @@ import javafx.scene.web.WebView;
 import javafx.util.Pair;
 import netscape.javascript.JSObject;
 import org.tmatesoft.svn.core.SVNDirEntry;
+import org.tmatesoft.svn.core.SVNErrorCode;
+import org.tmatesoft.svn.core.SVNErrorMessage;
 import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.internal.wc.SVNErrorManager;
+import org.tmatesoft.svn.core.internal.wc.SVNFileUtil;
 import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
+import org.tmatesoft.svn.core.io.diff.SVNDiffWindow;
+import org.tmatesoft.svn.util.SVNLogType;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -461,7 +469,36 @@ public class InterfaceController extends BaseController {
                             }
                             editor.applyTextDelta(uploadFilePath, null);
                             SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
-                            String checkSum = deltaGenerator.sendDelta(uploadFilePath, new FileInputStream(file), editor, true);
+                            String checkSum;
+                            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                                byte[] targetBuffer = new byte[32 * 1024];
+                                MessageDigest digest = null;
+                                try {
+                                    digest = MessageDigest.getInstance("MD5");
+                                } catch (NoSuchAlgorithmException e) {
+                                    SVNErrorMessage err = SVNErrorMessage.create(SVNErrorCode.IO_ERROR, "MD5 implementation not found: {0}", e.getLocalizedMessage());
+                                    SVNErrorManager.error(err, e, SVNLogType.DEFAULT);
+                                }
+                                boolean windowSent = false;
+                                while (true) {
+                                    int targetLength = fileInputStream.read(targetBuffer);
+                                    if (targetLength <= 0) {
+                                        if (!windowSent) {
+                                            editor.textDeltaChunk(uploadFilePath, SVNDiffWindow.EMPTY);
+                                        }
+                                        break;
+                                    }
+                                    if (digest != null) {
+                                        digest.update(targetBuffer, 0, targetLength);
+                                    }
+                                    deltaGenerator.sendDelta(uploadFilePath, targetBuffer, targetLength, editor);
+                                    windowSent = true;
+                                    sent += targetLength;
+                                    updateProgress(file, sent);
+                                }
+                                editor.textDeltaEnd(uploadFilePath);
+                                checkSum = SVNFileUtil.toHexDigest(digest);
+                            }
                             editor.closeFile(uploadFilePath, checkSum);
 
                             updateProgress(file, sent);
