@@ -116,6 +116,7 @@ public class InterfaceController extends BaseController {
                 @Override
                 protected void onCreationFailed(Exception e) {
                     AlertUtil.error(creationFailedMsg, e);
+                    uploadTransactionData = null;
                     mainApp.hideProgress();
                     webView.setDisable(false);
                     enableRefreshingRepositoryContent();
@@ -351,13 +352,19 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        private void upload(List<File> dirs, List<File> files, Map<File, String> repositoryPathMap) throws Exception {
+        private void upload(List<File> dirs, List<File> files, Map<File, String> repositoryPathMap) {
             if (uploadTransactionData == null) {
-                uploadTransactionData = new UploadTransactionData(repository, dirs, files, repositoryPathMap);
                 String errorMsg = "上传失败";
                 String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
                 String subProgressTextTpl = "[%s] 上传进度：%s / %s";
-                checkUploadItems(dirs, files, errorMsg);
+                try {
+                    uploadTransactionData = new UploadTransactionData(repository, dirs, files, repositoryPathMap);
+                    checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
+                } catch (Exception e) {
+                    AlertUtil.error(errorMsg, e);
+                    uploadTransactionData = null;
+                    return;
+                }
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
                     private void updateProgress(File file, long sent) {
                         int fileIdx = uploadTransactionData.indexOf(file);
