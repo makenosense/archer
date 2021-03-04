@@ -386,6 +386,7 @@ public class InterfaceController extends BaseController {
         private void upload(List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
             if (uploadTransactionData == null) {
                 String errorMsg = "上传失败";
+                String progressTitle = "上传进度";
                 String uploadPreCheckProgressText = "上传事务封装";
                 String dirUploadProgressText = "上传文件夹";
                 String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
@@ -441,7 +442,10 @@ public class InterfaceController extends BaseController {
                         }
 
                         /*准备上传文件*/
-                        Platform.runLater(() -> mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText));
+                        Platform.runLater(() -> {
+                            mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
+                            mainApp.setProgressTitle(progressTitle);
+                        });
 
                         /*上传文件*/
                         for (File file : uploadTransactionData.fileList()) {
@@ -465,7 +469,7 @@ public class InterfaceController extends BaseController {
                         /*上传完成*/
                         Platform.runLater(() -> mainApp.setProgress(1, uploadCompleteProgressText, 1, uploadCompleteProgressText));
                     }
-                }, errorMsg, "上传进度", new Pair<>(-1., uploadPreCheckProgressText), null));
+                }, errorMsg, progressTitle, new Pair<>(-1., uploadPreCheckProgressText), null));
             }
         }
 
