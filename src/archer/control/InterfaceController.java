@@ -165,10 +165,10 @@ public class InterfaceController extends BaseController {
                 this.errorMessage = errorMessage;
             }
 
-            protected void beforeEditing() throws Exception {
+            protected void beforeEditing(Task<Void> task) throws Exception {
             }
 
-            protected abstract void doEditing(ISVNEditor editor) throws Exception;
+            protected abstract void doEditing(ISVNEditor editor, Task<Void> task) throws Exception;
 
             protected void onEditingFailed(Exception e) {
                 Platform.runLater(() -> AlertUtil.error(errorMessage, e));
@@ -187,18 +187,29 @@ public class InterfaceController extends BaseController {
                     protected Void call() throws Exception {
                         ISVNEditor editor = null;
                         try {
-                            beforeEditing();
+                            beforeEditing(this);
                             editor = repository.getCommitEditor(logMessage, null);
                             editor.openRoot(-1);
-                            doEditing(editor);
+                            doEditing(editor, this);
                             editor.closeDir();
                             editor.closeEdit();
                             onEditingSuccess();
-                        } catch (Exception e) {
-                            if (editor != null) {
-                                editor.abortEdit();
+                        } catch (UploadCancelledException e) {
+                            try {
+                                if (editor != null) {
+                                    editor.abortEdit();
+                                }
+                            } finally {
+                                AlertUtil.info(e.getMessage());
                             }
-                            onEditingFailed(e);
+                        } catch (Exception e) {
+                            try {
+                                if (editor != null) {
+                                    editor.abortEdit();
+                                }
+                            } finally {
+                                onEditingFailed(e);
+                            }
                         } finally {
                             onEditingComplete();
                         }
@@ -332,8 +343,11 @@ public class InterfaceController extends BaseController {
         public void uploadFiles() {
             List<File> files = mainApp.chooseMultipleFiles();
             if (!files.isEmpty()) {
+                mainApp.showProgress(-1, "收集上传项目");
                 Map<File, String> uploadPathMap = files.stream()
                         .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
+                mainApp.hideProgress();
+
                 upload(null, files, uploadPathMap);
             }
         }
@@ -354,8 +368,11 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        private void checkUploadItems(List<File> dirs, List<File> files, String errorMsg) throws Exception {
+        private void checkUploadItems(List<File> dirs, List<File> files, String errorMsg, Task<Void> task) throws Exception {
             for (File dir : dirs) {
+                if (task.isCancelled()) {
+                    throw new UploadCancelledException();
+                }
                 if (!dir.isDirectory()) {
                     throw new Exception(errorMsg + "（文件夹不存在）：" + dir.getCanonicalPath());
                 }
@@ -364,6 +381,9 @@ public class InterfaceController extends BaseController {
                 }
             }
             for (File file : files) {
+                if (task.isCancelled()) {
+                    throw new UploadCancelledException();
+                }
                 if (!file.isFile()) {
                     throw new Exception(errorMsg + "（文件不存在）：" + file.getCanonicalPath());
                 }
@@ -386,13 +406,13 @@ public class InterfaceController extends BaseController {
                 String uploadCompleteProgressText = "上传完成";
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("upload", errorMsg) {
                     @Override
-                    protected void beforeEditing() throws Exception {
+                    protected void beforeEditing(Task<Void> task) throws Exception {
                         Platform.runLater(() -> {
                             mainApp.showProgress(-1, uploadPreCheckProgressText);
                             mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
                         });
-                        uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
-                        checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
+                        uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap, task);
+                        checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg, task);
                     }
 
                     private void updateProgress(File dir) {
@@ -423,7 +443,7 @@ public class InterfaceController extends BaseController {
                     }
 
                     @Override
-                    protected void doEditing(ISVNEditor editor) throws Exception {
+                    protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                         /*准备上传文件夹*/
                         Platform.runLater(() -> {
                             mainApp.showProgress(0, dirUploadProgressText);
@@ -434,6 +454,9 @@ public class InterfaceController extends BaseController {
                         /*上传文件夹*/
                         for (File dir : uploadTransactionData.dirList()) {
                             if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
+                                if (task.isCancelled()) {
+                                    throw new UploadCancelledException();
+                                }
                                 editor.addDir(uploadPathMap.get(dir), null, -1);
                                 editor.closeDir();
                             }
@@ -472,6 +495,9 @@ public class InterfaceController extends BaseController {
                                 }
                                 boolean windowSent = false;
                                 while (true) {
+                                    if (task.isCancelled()) {
+                                        throw new UploadCancelledException();
+                                    }
                                     int targetLength = fileInputStream.read(targetBuffer);
                                     if (targetLength <= 0) {
                                         if (!windowSent) {
@@ -507,7 +533,7 @@ public class InterfaceController extends BaseController {
             startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("createDir", errorMsg) {
                         @Override
-                        protected void doEditing(ISVNEditor editor) throws Exception {
+                        protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                             editor.addDir(path.resolve(name).toString(), null, -1);
                             editor.closeDir();
                         }
@@ -523,7 +549,7 @@ public class InterfaceController extends BaseController {
             startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("deleteEntry", errorMsg) {
                         @Override
-                        protected void doEditing(ISVNEditor editor) throws Exception {
+                        protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                             for (String p : pathList) {
                                 editor.deleteEntry(path.resolve(p).toString(), -1);
                             }
