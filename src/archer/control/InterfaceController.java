@@ -346,9 +346,7 @@ public class InterfaceController extends BaseController {
         }
 
         public void uploadFiles() {
-            List<File> files = mainApp.chooseMultipleFiles().stream()
-                    .filter(file -> !file.isHidden())
-                    .collect(Collectors.toList());
+            List<File> files = mainApp.chooseMultipleFiles();
             if (!files.isEmpty()) {
                 Map<File, String> uploadPathMap = files.stream()
                         .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
@@ -357,7 +355,7 @@ public class InterfaceController extends BaseController {
         }
 
         private void collectUploadItems(File item, RepositoryPathNode itemPathNode, List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
-            if (item.exists() && !item.isHidden()) {
+            if (item.exists()) {
                 if (item.isFile()) {
                     files.add(item);
                     uploadPathMap.put(item, itemPathNode.getPath());
