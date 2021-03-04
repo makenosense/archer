@@ -98,7 +98,7 @@ public class WelcomeController extends BaseController {
                                 repositoryConfig.save();
                             }
 
-                            Platform.runLater(() -> mainApp.setProgress(1, "正在打开仓库"));
+                            Platform.runLater(() -> mainApp.setProgress(1, "打开仓库"));
                             hideProgressWithDelay();
                             Platform.runLater(() -> mainApp.showInterface(repositoryConfig, repository));
                         } catch (Exception e) {
@@ -162,7 +162,7 @@ public class WelcomeController extends BaseController {
 
         public void removeRepository(int index) {
             try {
-                mainApp.showProgress(-1, "正在移除仓库");
+                mainApp.showProgress(-1, "移除仓库");
                 RepositoryConfig.remove(index);
             } catch (Exception e) {
                 AlertUtil.error("仓库移除失败", e);
