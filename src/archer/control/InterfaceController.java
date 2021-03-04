@@ -328,9 +328,11 @@ public class InterfaceController extends BaseController {
             List<File> files = mainApp.chooseMultipleFiles().stream()
                     .filter(file -> !file.isHidden())
                     .collect(Collectors.toList());
-            Map<File, String> repositoryPathMap = files.stream()
-                    .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
-            upload(null, files, repositoryPathMap);
+            if (!files.isEmpty()) {
+                Map<File, String> repositoryPathMap = files.stream()
+                        .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
+                upload(null, files, repositoryPathMap);
+            }
         }
 
         private void checkUploadItems(List<File> dirs, List<File> files, String errorMsg) throws Exception {
