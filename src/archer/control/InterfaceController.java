@@ -25,6 +25,7 @@ import org.tmatesoft.svn.core.io.diff.SVNDeltaGenerator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class InterfaceController extends BaseController {
@@ -326,33 +327,37 @@ public class InterfaceController extends BaseController {
             List<File> files = mainApp.chooseMultipleFiles().stream()
                     .filter(file -> !file.isHidden())
                     .collect(Collectors.toList());
-            if (!files.isEmpty()) {
-                Map<File, String> repositoryFilePathMap = new HashMap<>();
-                for (File file : files) {
-                    repositoryFilePathMap.put(file, path.resolve(file.getName()).toString());
-                }
-                uploadFiles(files, repositoryFilePathMap);
-            }
+            Map<File, String> repositoryPathMap = files.stream()
+                    .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
+            upload(null, files, repositoryPathMap);
         }
 
-        private void checkFiles(List<File> files, String errorMsg) throws Exception {
-            for (File file : files) {
-                if (!file.canRead()) {
-                    throw new Exception(errorMsg + "（文件不可读）：" + file.getCanonicalPath());
+        private void checkUploadItems(List<File> dirs, List<File> files, String errorMsg) throws Exception {
+            for (File dir : dirs) {
+                if (!dir.isDirectory()) {
+                    throw new Exception(errorMsg + "（文件夹不存在）：" + dir.getCanonicalPath());
                 }
+                if (!dir.canRead()) {
+                    throw new Exception(errorMsg + "（文件夹不可读）：" + dir.getCanonicalPath());
+                }
+            }
+            for (File file : files) {
                 if (!file.isFile()) {
                     throw new Exception(errorMsg + "（文件不存在）：" + file.getCanonicalPath());
                 }
+                if (!file.canRead()) {
+                    throw new Exception(errorMsg + "（文件不可读）：" + file.getCanonicalPath());
+                }
             }
         }
 
-        private void uploadFiles(List<File> files, Map<File, String> repositoryFilePathMap) throws Exception {
+        private void upload(List<File> dirs, List<File> files, Map<File, String> repositoryPathMap) throws Exception {
             if (uploadTransactionData == null) {
-                uploadTransactionData = new UploadTransactionData(repository, files, repositoryFilePathMap);
-                String errorMsg = "文件上传失败";
+                uploadTransactionData = new UploadTransactionData(repository, dirs, files, repositoryPathMap);
+                String errorMsg = "上传失败";
                 String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
                 String subProgressTextTpl = "[%s] 上传进度：%s / %s";
-                checkFiles(files, errorMsg);
+                checkUploadItems(dirs, files, errorMsg);
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
                     private void updateProgress(File file, long sent) {
                         int fileIdx = uploadTransactionData.indexOf(file);
@@ -374,13 +379,21 @@ public class InterfaceController extends BaseController {
 
                     @Override
                     protected void doEditing(ISVNEditor editor) throws Exception {
+                        /*上传文件夹*/
+                        for (File dir : uploadTransactionData.dirList()) {
+                            if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
+                                editor.addDir(repositoryPathMap.get(dir), null, -1);
+                                editor.closeDir();
+                            }
+                        }
+
+                        /*上传文件*/
                         for (File file : uploadTransactionData.fileList()) {
                             long sent = 0;
                             updateProgress(file, sent);
 
-                            String repositoryFilePath = repositoryFilePathMap.get(file);
-                            SVNNodeKind fileKind = uploadTransactionData.getKind(file);
-                            if (fileKind == SVNNodeKind.FILE) {
+                            String repositoryFilePath = repositoryPathMap.get(file);
+                            if (uploadTransactionData.getKind(file) == SVNNodeKind.FILE) {
                                 editor.openFile(repositoryFilePath, -1);
                             } else {
                                 editor.addFile(repositoryFilePath, null, -1);
@@ -393,7 +406,7 @@ public class InterfaceController extends BaseController {
                             updateProgress(file, sent);
                         }
                     }
-                }, errorMsg, "上传进度", new Pair<>(-1, "文件上传中"), new Pair<>(-1, "文件上传中")));
+                }, errorMsg, "上传进度", new Pair<>(-1, "上传准备中"), new Pair<>(-1, "上传准备中")));
             }
         }
 
@@ -404,6 +417,7 @@ public class InterfaceController extends BaseController {
                         @Override
                         protected void doEditing(ISVNEditor editor) throws Exception {
                             editor.addDir(path.resolve(name).toString(), null, -1);
+                            editor.closeDir();
                         }
                     }, errorMsg));
         }
