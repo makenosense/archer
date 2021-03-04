@@ -95,16 +95,16 @@ public class InterfaceController extends BaseController {
         }
 
         private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg,
-                                                            String progressTitle, Pair<Integer, String> progress, Pair<Integer, String> subProgress) {
+                                                            String progressTitle, Pair<Double, String> progress, Pair<Double, String> subProgress) {
             return new ExclusiveService() {
                 @Override
                 protected Service createService() {
                     webView.setDisable(true);
                     if (progress != null) {
                         if (subProgress != null) {
-                            mainApp.showProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
+                            mainApp.showProgress(progress, subProgress);
                         } else {
-                            mainApp.showProgress(progress.getKey(), progress.getValue());
+                            mainApp.showProgress(progress);
                         }
                         if (progressTitle != null) {
                             mainApp.setProgressTitle(progressTitle);
@@ -405,8 +405,11 @@ public class InterfaceController extends BaseController {
 
                             updateProgress(file, sent);
                         }
+
+                        /*上传完成*/
+                        Platform.runLater(() -> mainApp.setProgress(new Pair<>(1., "上传完成"), new Pair<>(1., "上传完成")));
                     }
-                }, errorMsg, "上传进度", new Pair<>(-1, "上传准备中"), new Pair<>(-1, "上传准备中")));
+                }, errorMsg, "上传进度", new Pair<>(-1., "上传准备中"), new Pair<>(-1., "上传准备中")));
             }
         }
 

@@ -16,6 +16,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
@@ -135,6 +136,14 @@ public class MainApp extends Application {
         ((DoubleProgressController) progressController).setSubText(subText);
     }
 
+    public void showProgress(Pair<Double, String> progress) {
+        showProgress(progress.getKey(), progress.getValue());
+    }
+
+    public void showProgress(Pair<Double, String> progress, Pair<Double, String> subProgress) {
+        showProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
+    }
+
     public void setProgress(double value, String text) {
         progressController.setProgress(value);
         progressController.setText(text);
@@ -144,6 +153,14 @@ public class MainApp extends Application {
         setProgress(value, text);
         ((DoubleProgressController) progressController).setSubProgress(subValue);
         ((DoubleProgressController) progressController).setSubText(subText);
+    }
+
+    public void setProgress(Pair<Double, String> progress) {
+        setProgress(progress.getKey(), progress.getValue());
+    }
+
+    public void setProgress(Pair<Double, String> progress, Pair<Double, String> subProgress) {
+        setProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
     }
 
     public void setProgressTitle(String title) {
