@@ -90,7 +90,10 @@ public class InterfaceController extends BaseController {
         /**
          * 私有方法
          */
-        private void enableRefreshingRepositoryContent() {
+        private void serviceCleanup() {
+            uploadTransactionData = null;
+            mainApp.hideProgress();
+            webView.setDisable(false);
             getWindow().call("switchRepoNavOps", "repo-nav-ops-refresh", true);
         }
 
@@ -105,10 +108,7 @@ public class InterfaceController extends BaseController {
                 @Override
                 protected void onCreationFailed(Exception e) {
                     AlertUtil.error(creationFailedMsg, e);
-                    uploadTransactionData = null;
-                    mainApp.hideProgress();
-                    webView.setDisable(false);
-                    enableRefreshingRepositoryContent();
+                    serviceCleanup();
                 }
             };
         }
@@ -147,10 +147,7 @@ public class InterfaceController extends BaseController {
                         } catch (Exception e) {
                             Platform.runLater(() -> AlertUtil.error("仓库加载失败", e));
                         } finally {
-                            Platform.runLater(() -> {
-                                webView.setDisable(false);
-                                enableRefreshingRepositoryContent();
-                            });
+                            Platform.runLater(JavaApi.this::serviceCleanup);
                         }
                         return null;
                     }
@@ -220,10 +217,7 @@ public class InterfaceController extends BaseController {
             @Override
             protected void onEditingComplete() {
                 Platform.runLater(() -> {
-                    uploadTransactionData = null;
-                    mainApp.hideProgress();
-                    webView.setDisable(false);
-                    enableRefreshingRepositoryContent();
+                    serviceCleanup();
                     getWindow().call("loadRepoContent");
                 });
             }

@@ -178,6 +178,7 @@ function deleteEntry(paths) {
 $(function () {
     $("#repo-ops-upload-dir").click(function () {
         try {
+            repoContentLoading();
             javaApi.uploadDir();
         } catch (error) {
             logError(error);
@@ -185,6 +186,7 @@ $(function () {
     });
     $("#repo-ops-upload-files").click(function () {
         try {
+            repoContentLoading();
             javaApi.uploadFiles();
         } catch (error) {
             logError(error);
