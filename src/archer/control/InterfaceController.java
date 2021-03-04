@@ -415,33 +415,6 @@ public class InterfaceController extends BaseController {
                         checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg, task);
                     }
 
-                    private void updateProgress(File dir) {
-                        int dirIdx = uploadTransactionData.indexOfDir(dir);
-                        int lengthOfDirs = uploadTransactionData.lengthOfDirs();
-                        double progressValue = 1. * (dirIdx + 1) / lengthOfDirs;
-                        String dirName = dir.getName();
-                        Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(dirUploadProgressTextTpl, dirIdx + 1, lengthOfDirs, dirName)));
-                    }
-
-                    private void updateProgress(File file, long sent) {
-                        int fileIdx = uploadTransactionData.indexOfFile(file);
-                        int lengthOfFiles = uploadTransactionData.lengthOfFiles();
-                        long totalSent = uploadTransactionData.getPrevSize(file) + sent;
-                        long totalSize = uploadTransactionData.getTotalSize();
-                        double progressValue = 1. * totalSent / Math.max(totalSize, 1);
-                        String progressPercent = String.format("%.1f%%", 100 * progressValue);
-                        String fileName = file.getName();
-                        long fileSize = uploadTransactionData.getSize(file);
-                        double subProgressValue = 1. * sent / Math.max(fileSize, 1);
-                        String subProgressPercent = String.format("%.1f%%", 100 * subProgressValue);
-                        String sentString = FileUtil.getSizeString(sent);
-                        String fileSizeString = FileUtil.getSizeString(fileSize);
-                        Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(fileUploadProgressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
-                                subProgressValue, String.format(fileUploadSubProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
-                    }
-
                     @Override
                     protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                         /*准备上传文件夹*/
@@ -523,6 +496,33 @@ public class InterfaceController extends BaseController {
 
                         /*上传完成*/
                         Platform.runLater(() -> mainApp.setProgress(1, uploadCompleteProgressText, 1, uploadCompleteProgressText));
+                    }
+
+                    private void updateProgress(File dir) {
+                        int dirIdx = uploadTransactionData.indexOfDir(dir);
+                        int lengthOfDirs = uploadTransactionData.lengthOfDirs();
+                        double progressValue = 1. * (dirIdx + 1) / lengthOfDirs;
+                        String dirName = dir.getName();
+                        Platform.runLater(() -> mainApp.setProgress(
+                                progressValue, String.format(dirUploadProgressTextTpl, dirIdx + 1, lengthOfDirs, dirName)));
+                    }
+
+                    private void updateProgress(File file, long sent) {
+                        int fileIdx = uploadTransactionData.indexOfFile(file);
+                        int lengthOfFiles = uploadTransactionData.lengthOfFiles();
+                        long totalSent = uploadTransactionData.getPrevSize(file) + sent;
+                        long totalSize = uploadTransactionData.getTotalSize();
+                        double progressValue = 1. * totalSent / Math.max(totalSize, 1);
+                        String progressPercent = String.format("%.1f%%", 100 * progressValue);
+                        String fileName = file.getName();
+                        long fileSize = uploadTransactionData.getSize(file);
+                        double subProgressValue = 1. * sent / Math.max(fileSize, 1);
+                        String subProgressPercent = String.format("%.1f%%", 100 * subProgressValue);
+                        String sentString = FileUtil.getSizeString(sent);
+                        String fileSizeString = FileUtil.getSizeString(fileSize);
+                        Platform.runLater(() -> mainApp.setProgress(
+                                progressValue, String.format(fileUploadProgressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
+                                subProgressValue, String.format(fileUploadSubProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
                     }
                 }, errorMsg));
             }
