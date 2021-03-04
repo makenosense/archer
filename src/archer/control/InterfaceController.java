@@ -393,7 +393,7 @@ public class InterfaceController extends BaseController {
                 String fileUploadProgressTextTpl = "[%s] " + fileUploadProgressText + "（%d/%d）：%s";
                 String fileUploadSubProgressTextTpl = "[%s] 上传进度：%s / %s";
                 String uploadCompleteProgressText = "上传完成";
-                startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
+                startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("upload", errorMsg) {
                     @Override
                     protected void beforeEditing() throws Exception {
                         uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
