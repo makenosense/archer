@@ -386,11 +386,11 @@ public class InterfaceController extends BaseController {
         private void upload(List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
             if (uploadTransactionData == null) {
                 String errorMsg = "上传失败";
-                String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
-                String subProgressTextTpl = "[%s] 上传进度：%s / %s";
                 String dirUploadProgressText = "正在上传文件夹";
                 String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
                 String fileUploadProgressText = "正在上传文件";
+                String fileUploadProgressTextTpl = "[%s] " + fileUploadProgressText + "（%d/%d）：%s";
+                String fileUploadSubProgressTextTpl = "[%s] 上传进度：%s / %s";
                 String uploadCompleteProgressText = "上传完成";
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
                     @Override
@@ -422,8 +422,8 @@ public class InterfaceController extends BaseController {
                         String sentString = FileUtil.getSizeString(sent);
                         String fileSizeString = FileUtil.getSizeString(fileSize);
                         Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(progressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
-                                subProgressValue, String.format(subProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
+                                progressValue, String.format(fileUploadProgressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
+                                subProgressValue, String.format(fileUploadSubProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
                     }
 
                     @Override
@@ -440,10 +440,7 @@ public class InterfaceController extends BaseController {
                         }
 
                         /*准备上传文件*/
-                        Platform.runLater(() -> {
-                            mainApp.hideProgress();
-                            mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
-                        });
+                        Platform.runLater(() -> mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText));
 
                         /*上传文件*/
                         for (File file : uploadTransactionData.fileList()) {
