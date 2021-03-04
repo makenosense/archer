@@ -430,6 +430,7 @@ public class InterfaceController extends BaseController {
 
                     @Override
                     protected void doEditing(ISVNEditor editor) throws Exception {
+                        /*准备上传文件夹*/
                         Platform.runLater(() -> mainApp.setProgress(0, dirUploadProgressText));
 
                         /*上传文件夹*/
