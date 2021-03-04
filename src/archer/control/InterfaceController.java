@@ -327,7 +327,7 @@ public class InterfaceController extends BaseController {
                 List<File> files = new LinkedList<>();
                 Map<File, String> uploadPathMap = new HashMap<>();
 
-                mainApp.showProgress(-1, "上传准备中");
+                mainApp.showProgress(-1, "收集上传项目");
                 collectUploadItems(dir, path.resolve(dir.getName()).getPathNode(), dirs, files, uploadPathMap);
                 mainApp.hideProgress();
 
@@ -386,6 +386,7 @@ public class InterfaceController extends BaseController {
         private void upload(List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
             if (uploadTransactionData == null) {
                 String errorMsg = "上传失败";
+                String uploadPreCheckProgressText = "上传事务封装";
                 String dirUploadProgressText = "正在上传文件夹";
                 String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
                 String fileUploadProgressText = "正在上传文件";
@@ -464,7 +465,7 @@ public class InterfaceController extends BaseController {
                         /*上传完成*/
                         Platform.runLater(() -> mainApp.setProgress(1, uploadCompleteProgressText, 1, uploadCompleteProgressText));
                     }
-                }, errorMsg, "上传进度", new Pair<>(-1., "上传准备中"), null));
+                }, errorMsg, "上传进度", new Pair<>(-1., uploadPreCheckProgressText), null));
             }
         }
 
