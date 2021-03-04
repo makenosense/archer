@@ -415,11 +415,11 @@ public class InterfaceController extends BaseController {
                         int lengthOfFiles = uploadTransactionData.lengthOfFiles();
                         long totalSent = uploadTransactionData.getPrevSize(file) + sent;
                         long totalSize = uploadTransactionData.getTotalSize();
-                        double progressValue = 1. * totalSent / totalSize;
+                        double progressValue = 1. * totalSent / Math.max(totalSize, 1);
                         String progressPercent = String.format("%.1f%%", 100 * progressValue);
                         String fileName = file.getName();
                         long fileSize = uploadTransactionData.getSize(file);
-                        double subProgressValue = 1. * sent / fileSize;
+                        double subProgressValue = 1. * sent / Math.max(fileSize, 1);
                         String subProgressPercent = String.format("%.1f%%", 100 * subProgressValue);
                         String sentString = FileUtil.getSizeString(sent);
                         String fileSizeString = FileUtil.getSizeString(fileSize);
