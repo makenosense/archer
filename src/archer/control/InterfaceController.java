@@ -324,7 +324,7 @@ public class InterfaceController extends BaseController {
             //TODO
         }
 
-        public void uploadFiles() throws Exception {
+        public void uploadFiles() {
             List<File> files = mainApp.chooseMultipleFiles().stream()
                     .filter(file -> !file.isHidden())
                     .collect(Collectors.toList());
