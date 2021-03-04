@@ -170,6 +170,9 @@ public class InterfaceController extends BaseController {
                 this.errorMessage = errorMessage;
             }
 
+            protected void beforeEditing() throws Exception {
+            }
+
             protected abstract void doEditing(ISVNEditor editor) throws Exception;
 
             protected void onEditingFailed(Exception e) {
@@ -189,6 +192,7 @@ public class InterfaceController extends BaseController {
                     protected Void call() throws Exception {
                         ISVNEditor editor = null;
                         try {
+                            beforeEditing();
                             editor = repository.getCommitEditor(logMessage, null);
                             editor.openRoot(-1);
                             doEditing(editor);
@@ -318,7 +322,19 @@ public class InterfaceController extends BaseController {
          */
         public void uploadDir() {
             File dir = mainApp.chooseDirectory();
-            //TODO
+            if (dir != null) {
+                List<File> dirs = new LinkedList<>();
+                List<File> files = new LinkedList<>();
+                Map<File, String> uploadPathMap = new HashMap<>();
+
+                mainApp.showProgress(-1, "上传准备中");
+                collectUploadItems(dir, path.resolve(dir.getName()).getPathNode(), dirs, files, uploadPathMap);
+                mainApp.hideProgress();
+
+                if (!dirs.isEmpty()) {
+                    upload(dirs, files, uploadPathMap);
+                }
+            }
         }
 
         public void uploadFiles() {
@@ -329,6 +345,22 @@ public class InterfaceController extends BaseController {
                 Map<File, String> uploadPathMap = files.stream()
                         .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
                 upload(null, files, uploadPathMap);
+            }
+        }
+
+        private void collectUploadItems(File item, RepositoryPathNode itemPathNode, List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
+            if (item.exists() && !item.isHidden()) {
+                if (item.isFile()) {
+                    files.add(item);
+                    uploadPathMap.put(item, itemPathNode.getPath());
+                } else if (item.isDirectory()) {
+                    dirs.add(item);
+                    uploadPathMap.put(item, itemPathNode.getPath());
+                    File[] children = item.listFiles();
+                    children = children != null ? children : new File[0];
+                    Arrays.asList(children).forEach(
+                            child -> collectUploadItems(child, itemPathNode.resolve(child.getName()), dirs, files, uploadPathMap));
+                }
             }
         }
 
@@ -356,18 +388,29 @@ public class InterfaceController extends BaseController {
                 String errorMsg = "上传失败";
                 String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
                 String subProgressTextTpl = "[%s] 上传进度：%s / %s";
-                try {
-                    uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
-                    checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
-                } catch (Exception e) {
-                    AlertUtil.error(errorMsg, e);
-                    uploadTransactionData = null;
-                    return;
-                }
+                String dirUploadProgressText = "正在上传文件夹";
+                String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
+                String fileUploadProgressText = "正在上传文件";
+                String uploadCompleteProgressText = "上传完成";
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("uploadFiles", errorMsg) {
+                    @Override
+                    protected void beforeEditing() throws Exception {
+                        uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
+                        checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
+                    }
+
+                    private void updateProgress(File dir) {
+                        int dirIdx = uploadTransactionData.indexOfDir(dir);
+                        int lengthOfDirs = uploadTransactionData.lengthOfDirs();
+                        double progressValue = 1. * (dirIdx + 1) / lengthOfDirs;
+                        String dirName = dir.getName();
+                        Platform.runLater(() -> mainApp.setProgress(
+                                progressValue, String.format(dirUploadProgressTextTpl, dirIdx + 1, lengthOfDirs, dirName)));
+                    }
+
                     private void updateProgress(File file, long sent) {
-                        int fileIdx = uploadTransactionData.indexOf(file);
-                        int uploadLength = uploadTransactionData.length();
+                        int fileIdx = uploadTransactionData.indexOfFile(file);
+                        int lengthOfFiles = uploadTransactionData.lengthOfFiles();
                         long totalSent = uploadTransactionData.getPrevSize(file) + sent;
                         long totalSize = uploadTransactionData.getTotalSize();
                         double progressValue = 1. * totalSent / totalSize;
@@ -379,19 +422,28 @@ public class InterfaceController extends BaseController {
                         String sentString = FileUtil.getSizeString(sent);
                         String fileSizeString = FileUtil.getSizeString(fileSize);
                         Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(progressTextTpl, progressPercent, fileIdx + 1, uploadLength, fileName),
+                                progressValue, String.format(progressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
                                 subProgressValue, String.format(subProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
                     }
 
                     @Override
                     protected void doEditing(ISVNEditor editor) throws Exception {
+                        Platform.runLater(() -> mainApp.setProgress(0, dirUploadProgressText));
+
                         /*上传文件夹*/
                         for (File dir : uploadTransactionData.dirList()) {
                             if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
                                 editor.addDir(uploadPathMap.get(dir), null, -1);
                                 editor.closeDir();
                             }
+                            updateProgress(dir);
                         }
+
+                        /*准备上传文件*/
+                        Platform.runLater(() -> {
+                            mainApp.hideProgress();
+                            mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
+                        });
 
                         /*上传文件*/
                         for (File file : uploadTransactionData.fileList()) {
@@ -413,9 +465,9 @@ public class InterfaceController extends BaseController {
                         }
 
                         /*上传完成*/
-                        Platform.runLater(() -> mainApp.setProgress(new Pair<>(1., "上传完成"), new Pair<>(1., "上传完成")));
+                        Platform.runLater(() -> mainApp.setProgress(1, uploadCompleteProgressText, 1, uploadCompleteProgressText));
                     }
-                }, errorMsg, "上传进度", new Pair<>(-1., "上传准备中"), new Pair<>(-1., "上传准备中")));
+                }, errorMsg, "上传进度", new Pair<>(-1., "上传准备中"), null));
             }
         }
 

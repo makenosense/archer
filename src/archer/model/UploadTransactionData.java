@@ -53,11 +53,19 @@ public class UploadTransactionData {
         return fileList;
     }
 
-    public int length() {
+    public int lengthOfDirs() {
+        return dirList.size();
+    }
+
+    public int lengthOfFiles() {
         return fileList.size();
     }
 
-    public int indexOf(File file) {
+    public int indexOfDir(File dir) {
+        return dirList.indexOf(dir);
+    }
+
+    public int indexOfFile(File file) {
         return fileList.indexOf(file);
     }
 
