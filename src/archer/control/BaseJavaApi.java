@@ -6,7 +6,7 @@ import javafx.concurrent.Service;
 
 public abstract class BaseJavaApi {
 
-    private Service service;
+    protected Service service;
 
     protected abstract class ExclusiveService {
 

@@ -11,7 +11,6 @@ import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
-import javafx.util.Pair;
 import netscape.javascript.JSObject;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNErrorCode;
@@ -96,25 +95,10 @@ public class InterfaceController extends BaseController {
         }
 
         private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg) {
-            return buildNonInteractiveService(service, creationFailedMsg, null, null, null);
-        }
-
-        private ExclusiveService buildNonInteractiveService(Service service, String creationFailedMsg,
-                                                            String progressTitle, Pair<Double, String> progress, Pair<Double, String> subProgress) {
             return new ExclusiveService() {
                 @Override
                 protected Service createService() {
                     webView.setDisable(true);
-                    if (progress != null) {
-                        if (subProgress != null) {
-                            mainApp.showProgress(progress, subProgress);
-                        } else {
-                            mainApp.showProgress(progress);
-                        }
-                        if (progressTitle != null) {
-                            mainApp.setProgressTitle(progressTitle);
-                        }
-                    }
                     return service;
                 }
 
@@ -127,6 +111,12 @@ public class InterfaceController extends BaseController {
                     enableRefreshingRepositoryContent();
                 }
             };
+        }
+
+        private void cancelExclusiveService() {
+            if (service != null && service.isRunning()) {
+                service.cancel();
+            }
         }
 
         /**
@@ -403,6 +393,10 @@ public class InterfaceController extends BaseController {
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("upload", errorMsg) {
                     @Override
                     protected void beforeEditing() throws Exception {
+                        Platform.runLater(() -> {
+                            mainApp.showProgress(-1, uploadPreCheckProgressText);
+                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                        });
                         uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
                         checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
                     }
@@ -437,7 +431,11 @@ public class InterfaceController extends BaseController {
                     @Override
                     protected void doEditing(ISVNEditor editor) throws Exception {
                         /*准备上传文件夹*/
-                        Platform.runLater(() -> mainApp.setProgress(0, dirUploadProgressText));
+                        Platform.runLater(() -> {
+                            mainApp.showProgress(0, dirUploadProgressText);
+                            mainApp.setProgressTitle(progressTitle);
+                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                        });
 
                         /*上传文件夹*/
                         for (File dir : uploadTransactionData.dirList()) {
@@ -452,6 +450,7 @@ public class InterfaceController extends BaseController {
                         Platform.runLater(() -> {
                             mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
                             mainApp.setProgressTitle(progressTitle);
+                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
                         });
 
                         /*上传文件*/
@@ -505,7 +504,7 @@ public class InterfaceController extends BaseController {
                         /*上传完成*/
                         Platform.runLater(() -> mainApp.setProgress(1, uploadCompleteProgressText, 1, uploadCompleteProgressText));
                     }
-                }, errorMsg, progressTitle, new Pair<>(-1., uploadPreCheckProgressText), null));
+                }, errorMsg));
             }
         }
 

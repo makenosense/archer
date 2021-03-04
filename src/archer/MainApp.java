@@ -8,15 +8,13 @@ import archer.model.RepositoryConfig;
 import com.sun.javafx.webkit.WebConsoleListener;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.stage.DirectoryChooser;
-import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
-import javafx.util.Pair;
+import javafx.stage.*;
 import org.tmatesoft.svn.core.internal.io.svn.SVNRepositoryFactoryImpl;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
@@ -122,6 +120,7 @@ public class MainApp extends Application {
 
     public void showProgress(double value, String text) {
         initAndShowStage(progressStage, "view/fxml/Progress.fxml");
+        progressStage.setOnCloseRequest(Event::consume);
         progressController = (ProgressController) progressStage.getScene().getUserData();
         progressController.setProgress(value);
         progressController.setText(text);
@@ -129,19 +128,12 @@ public class MainApp extends Application {
 
     public void showProgress(double value, String text, double subValue, String subText) {
         initAndShowStage(progressStage, "view/fxml/DoubleProgress.fxml");
+        progressStage.setOnCloseRequest(Event::consume);
         progressController = (ProgressController) progressStage.getScene().getUserData();
         progressController.setProgress(value);
         progressController.setText(text);
         ((DoubleProgressController) progressController).setSubProgress(subValue);
         ((DoubleProgressController) progressController).setSubText(subText);
-    }
-
-    public void showProgress(Pair<Double, String> progress) {
-        showProgress(progress.getKey(), progress.getValue());
-    }
-
-    public void showProgress(Pair<Double, String> progress, Pair<Double, String> subProgress) {
-        showProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
     }
 
     public void setProgress(double value, String text) {
@@ -155,16 +147,12 @@ public class MainApp extends Application {
         ((DoubleProgressController) progressController).setSubText(subText);
     }
 
-    public void setProgress(Pair<Double, String> progress) {
-        setProgress(progress.getKey(), progress.getValue());
-    }
-
-    public void setProgress(Pair<Double, String> progress, Pair<Double, String> subProgress) {
-        setProgress(progress.getKey(), progress.getValue(), subProgress.getKey(), subProgress.getValue());
-    }
-
     public void setProgressTitle(String title) {
         progressStage.setTitle(title);
+    }
+
+    public void setOnProgressCloseRequest(EventHandler<WindowEvent> handler) {
+        progressStage.setOnCloseRequest(handler);
     }
 
     public void hideProgress() {
