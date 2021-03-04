@@ -417,81 +417,86 @@ public class InterfaceController extends BaseController {
 
                     @Override
                     protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
-                        /*准备上传文件夹*/
-                        Platform.runLater(() -> {
-                            mainApp.showProgress(0, dirUploadProgressText);
-                            mainApp.setProgressTitle(progressTitle);
-                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
-                        });
+                        if (uploadTransactionData.lengthOfDirs() > 0) {
+                            /*准备上传文件夹*/
+                            Platform.runLater(() -> {
+                                mainApp.showProgress(0, dirUploadProgressText);
+                                mainApp.setProgressTitle(progressTitle);
+                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                            });
 
-                        /*上传文件夹*/
-                        for (File dir : uploadTransactionData.dirList()) {
-                            if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
-                                if (task.isCancelled()) {
-                                    throw new UploadCancelledException();
-                                }
-                                editor.addDir(uploadPathMap.get(dir), null, -1);
-                                editor.closeDir();
-                            }
-                            updateProgress(dir);
-                        }
-
-                        /*准备上传文件*/
-                        Platform.runLater(() -> {
-                            mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
-                            mainApp.setProgressTitle(progressTitle);
-                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
-                        });
-
-                        /*上传文件*/
-                        for (File file : uploadTransactionData.fileList()) {
-                            long sent = 0;
-                            updateProgress(file, sent);
-
-                            String uploadFilePath = uploadPathMap.get(file);
-                            if (uploadTransactionData.getKind(file) == SVNNodeKind.FILE) {
-                                editor.openFile(uploadFilePath, -1);
-                            } else {
-                                editor.addFile(uploadFilePath, null, -1);
-                            }
-                            editor.applyTextDelta(uploadFilePath, null);
-                            SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
-                            String checkSum;
-                            try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                                byte[] targetBuffer = new byte[32 * 1024];
-                                MessageDigest digest = null;
-                                try {
-                                    digest = MessageDigest.getInstance("MD5");
-                                } catch (NoSuchAlgorithmException e) {
-                                    SVNErrorMessage err = SVNErrorMessage.create(SVNErrorCode.IO_ERROR, "MD5 implementation not found: {0}", e.getLocalizedMessage());
-                                    SVNErrorManager.error(err, e, SVNLogType.DEFAULT);
-                                }
-                                boolean windowSent = false;
-                                while (true) {
+                            /*上传文件夹*/
+                            for (File dir : uploadTransactionData.dirList()) {
+                                if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
                                     if (task.isCancelled()) {
                                         throw new UploadCancelledException();
                                     }
-                                    int targetLength = fileInputStream.read(targetBuffer);
-                                    if (targetLength <= 0) {
-                                        if (!windowSent) {
-                                            editor.textDeltaChunk(uploadFilePath, SVNDiffWindow.EMPTY);
-                                        }
-                                        break;
-                                    }
-                                    if (digest != null) {
-                                        digest.update(targetBuffer, 0, targetLength);
-                                    }
-                                    deltaGenerator.sendDelta(uploadFilePath, targetBuffer, targetLength, editor);
-                                    windowSent = true;
-                                    sent += targetLength;
-                                    updateProgress(file, sent);
+                                    editor.addDir(uploadPathMap.get(dir), null, -1);
+                                    editor.closeDir();
                                 }
-                                editor.textDeltaEnd(uploadFilePath);
-                                checkSum = SVNFileUtil.toHexDigest(digest);
+                                updateProgress(dir);
                             }
-                            editor.closeFile(uploadFilePath, checkSum);
+                        }
 
-                            updateProgress(file, sent);
+                        if (uploadTransactionData.lengthOfFiles() > 0) {
+                            /*准备上传文件*/
+                            Platform.runLater(() -> {
+                                mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
+                                mainApp.setProgressTitle(progressTitle);
+                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                            });
+
+                            /*上传文件*/
+                            for (File file : uploadTransactionData.fileList()) {
+                                long sent = 0;
+                                updateProgress(file, sent);
+
+                                String uploadFilePath = uploadPathMap.get(file);
+                                if (uploadTransactionData.getKind(file) == SVNNodeKind.FILE) {
+                                    editor.openFile(uploadFilePath, -1);
+                                } else {
+                                    editor.addFile(uploadFilePath, null, -1);
+                                }
+                                editor.applyTextDelta(uploadFilePath, null);
+                                SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
+                                String checkSum;
+                                try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                                    byte[] targetBuffer = new byte[32 * 1024];
+                                    MessageDigest digest = null;
+                                    try {
+                                        digest = MessageDigest.getInstance("MD5");
+                                    } catch (NoSuchAlgorithmException e) {
+                                        SVNErrorMessage err = SVNErrorMessage.create(SVNErrorCode.IO_ERROR,
+                                                "MD5 implementation not found: {0}", e.getLocalizedMessage());
+                                        SVNErrorManager.error(err, e, SVNLogType.DEFAULT);
+                                    }
+                                    boolean windowSent = false;
+                                    while (true) {
+                                        if (task.isCancelled()) {
+                                            throw new UploadCancelledException();
+                                        }
+                                        int targetLength = fileInputStream.read(targetBuffer);
+                                        if (targetLength <= 0) {
+                                            if (!windowSent) {
+                                                editor.textDeltaChunk(uploadFilePath, SVNDiffWindow.EMPTY);
+                                            }
+                                            break;
+                                        }
+                                        if (digest != null) {
+                                            digest.update(targetBuffer, 0, targetLength);
+                                        }
+                                        deltaGenerator.sendDelta(uploadFilePath, targetBuffer, targetLength, editor);
+                                        windowSent = true;
+                                        sent += targetLength;
+                                        updateProgress(file, sent);
+                                    }
+                                    editor.textDeltaEnd(uploadFilePath);
+                                    checkSum = SVNFileUtil.toHexDigest(digest);
+                                }
+                                editor.closeFile(uploadFilePath, checkSum);
+
+                                updateProgress(file, sent);
+                            }
                         }
 
                         /*上传完成*/
