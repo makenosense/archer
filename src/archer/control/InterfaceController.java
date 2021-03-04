@@ -397,7 +397,7 @@ public class InterfaceController extends BaseController {
             if (uploadTransactionData == null) {
                 String errorMsg = "上传失败";
                 String progressTitle = "上传进度";
-                String uploadPreCheckProgressText = "上传事务封装";
+                String uploadPreCheckProgressText = "上传准备中";
                 String dirUploadProgressText = "上传文件夹";
                 String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
                 String fileUploadProgressText = "上传文件";
