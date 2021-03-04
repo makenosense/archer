@@ -1,10 +1,7 @@
 package archer.control;
 
 import archer.MainApp;
-import archer.model.RepositoryContentData;
-import archer.model.RepositoryDirEntry;
-import archer.model.RepositoryPath;
-import archer.model.UploadTransactionData;
+import archer.model.*;
 import archer.util.AlertUtil;
 import archer.util.FileUtil;
 import javafx.application.Platform;
@@ -329,9 +326,9 @@ public class InterfaceController extends BaseController {
                     .filter(file -> !file.isHidden())
                     .collect(Collectors.toList());
             if (!files.isEmpty()) {
-                Map<File, String> repositoryPathMap = files.stream()
+                Map<File, String> uploadPathMap = files.stream()
                         .collect(Collectors.toMap(Function.identity(), file -> path.resolve(file.getName()).toString()));
-                upload(null, files, repositoryPathMap);
+                upload(null, files, uploadPathMap);
             }
         }
 
@@ -354,13 +351,13 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        private void upload(List<File> dirs, List<File> files, Map<File, String> repositoryPathMap) {
+        private void upload(List<File> dirs, List<File> files, Map<File, String> uploadPathMap) {
             if (uploadTransactionData == null) {
                 String errorMsg = "上传失败";
                 String progressTextTpl = "[%s] 正在上传（%d/%d）：%s";
                 String subProgressTextTpl = "[%s] 上传进度：%s / %s";
                 try {
-                    uploadTransactionData = new UploadTransactionData(repository, dirs, files, repositoryPathMap);
+                    uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap);
                     checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg);
                 } catch (Exception e) {
                     AlertUtil.error(errorMsg, e);
@@ -391,7 +388,7 @@ public class InterfaceController extends BaseController {
                         /*上传文件夹*/
                         for (File dir : uploadTransactionData.dirList()) {
                             if (uploadTransactionData.getKind(dir) != SVNNodeKind.DIR) {
-                                editor.addDir(repositoryPathMap.get(dir), null, -1);
+                                editor.addDir(uploadPathMap.get(dir), null, -1);
                                 editor.closeDir();
                             }
                         }
@@ -401,16 +398,16 @@ public class InterfaceController extends BaseController {
                             long sent = 0;
                             updateProgress(file, sent);
 
-                            String repositoryFilePath = repositoryPathMap.get(file);
+                            String uploadFilePath = uploadPathMap.get(file);
                             if (uploadTransactionData.getKind(file) == SVNNodeKind.FILE) {
-                                editor.openFile(repositoryFilePath, -1);
+                                editor.openFile(uploadFilePath, -1);
                             } else {
-                                editor.addFile(repositoryFilePath, null, -1);
+                                editor.addFile(uploadFilePath, null, -1);
                             }
-                            editor.applyTextDelta(repositoryFilePath, null);
+                            editor.applyTextDelta(uploadFilePath, null);
                             SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
-                            String checkSum = deltaGenerator.sendDelta(repositoryFilePath, new FileInputStream(file), editor, true);
-                            editor.closeFile(repositoryFilePath, checkSum);
+                            String checkSum = deltaGenerator.sendDelta(uploadFilePath, new FileInputStream(file), editor, true);
+                            editor.closeFile(uploadFilePath, checkSum);
 
                             updateProgress(file, sent);
                         }
