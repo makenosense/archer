@@ -21,4 +21,8 @@ public class RepositoryPathNode extends BaseModel {
     public RepositoryPathNode resolve(String pathString) {
         return new RepositoryPathNode(path.resolve(pathString));
     }
+
+    public Path relativize(Path other) {
+        return path.relativize(other);
+    }
 }

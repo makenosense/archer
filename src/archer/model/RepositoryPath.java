@@ -105,6 +105,10 @@ public class RepositoryPath extends BaseModel {
         return new RepositoryPath(path.resolve(pathString));
     }
 
+    public Path relativize(Path other) {
+        return path.relativize(other);
+    }
+
     public RepositoryPathNode getPathNode() {
         return new RepositoryPathNode(path);
     }
