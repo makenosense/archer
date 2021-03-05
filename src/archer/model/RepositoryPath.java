@@ -125,6 +125,6 @@ public class RepositoryPath extends BaseModel {
 
     @Override
     public String toString() {
-        return path.normalize().toString().replaceAll("\\\\", "/");
+        return path.toString().replaceAll("\\\\", "/");
     }
 }

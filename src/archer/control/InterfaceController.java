@@ -357,10 +357,10 @@ public class InterfaceController extends BaseController {
             if (item.exists()) {
                 if (item.isFile()) {
                     files.add(item);
-                    uploadPathMap.put(item, itemPathNode.getPath());
+                    uploadPathMap.put(item, itemPathNode.toString());
                 } else if (item.isDirectory()) {
                     dirs.add(item);
-                    uploadPathMap.put(item, itemPathNode.getPath());
+                    uploadPathMap.put(item, itemPathNode.toString());
                     File[] children = item.listFiles();
                     children = children != null ? children : new File[0];
                     Arrays.asList(children).forEach(

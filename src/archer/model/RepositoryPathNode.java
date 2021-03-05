@@ -10,7 +10,12 @@ public class RepositoryPathNode extends BaseModel {
         this.path = path.normalize();
     }
 
-    public String getPath() {
+    public Path getPath() {
+        return path;
+    }
+
+    @Override
+    public String toString() {
         return path.toString().replaceAll("\\\\", "/");
     }
 

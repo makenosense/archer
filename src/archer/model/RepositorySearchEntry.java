@@ -12,7 +12,7 @@ public class RepositorySearchEntry extends RepositoryDirEntry {
     }
 
     @Override
-    public String getPath() {
-        return parentPathNode.resolve(getName()).getPath();
+    public String toString() {
+        return parentPathNode.resolve(getName()).toString();
     }
 }

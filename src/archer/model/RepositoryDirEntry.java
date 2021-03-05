@@ -111,7 +111,8 @@ public class RepositoryDirEntry extends BaseModel {
         }
     }
 
-    public String getPath() {
+    @Override
+    public String toString() {
         return entry.getName();
     }
 

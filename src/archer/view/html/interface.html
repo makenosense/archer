@@ -104,7 +104,7 @@
                 </span>
                 <span id="repo-nav-path-node-flex">
                     {{# layui.each(d, function (index, item) { }}
-                    <span class="repo-nav-path-node" title="{{ item.getPath() }}">
+                    <span class="repo-nav-path-node" title="{{ item.toString() }}">
                         <span>{{ item.getName() }}</span>
                         <i class="fas fa-angle-right"></i>
                     </span>
@@ -151,7 +151,7 @@
                 <script id="repo-content-table-tr-tpl" type="text/html">
                     {{# layui.each(d, function (index, item) { }}
                     <tr class="repo-content-tr-{{ item.getTypeCode() }}">
-                        <td class="repo-content-td-name" col-key="name" title="{{ item.getPath() }}">
+                        <td class="repo-content-td-name" col-key="name" title="{{ item.toString() }}">
                             <label>
                                 <input type="checkbox" class="tr-checkbox repo-content-check"/>
                             </label>
