@@ -463,7 +463,7 @@ public class InterfaceController extends BaseController {
                                 SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
                                 String checkSum;
                                 try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                                    byte[] targetBuffer = new byte[128 * 1024];
+                                    byte[] targetBuffer = new byte[64 * 1024];
                                     MessageDigest digest = null;
                                     try {
                                         digest = MessageDigest.getInstance("MD5");
