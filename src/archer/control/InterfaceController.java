@@ -463,7 +463,7 @@ public class InterfaceController extends BaseController {
                                 SVNDeltaGenerator deltaGenerator = new SVNDeltaGenerator();
                                 String checkSum;
                                 try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                                    byte[] targetBuffer = new byte[32 * 1024];
+                                    byte[] targetBuffer = new byte[128 * 1024];
                                     MessageDigest digest = null;
                                     try {
                                         digest = MessageDigest.getInstance("MD5");
@@ -524,6 +524,7 @@ public class InterfaceController extends BaseController {
                         String totalSizeString = FileUtil.getSizeString(totalSize, 0);
                         int fileIdx = uploadTransactionData.indexOfFile(file);
                         int lengthOfFiles = uploadTransactionData.lengthOfFiles();
+                        String remainingTimeString = uploadTransactionData.getRemainingTimeString(totalSent);
 
                         long fileSize = Math.max(uploadTransactionData.getSize(file), 1);
                         double subProgressValue = 1. * sent / fileSize;
@@ -534,7 +535,7 @@ public class InterfaceController extends BaseController {
                         Platform.runLater(() -> mainApp.setProgress(
                                 progressValue, String.format(fileUploadProgressTextTpl,
                                         progressPercent, totalSentString, totalSizeString,
-                                        fileIdx + 1, lengthOfFiles, "?"),
+                                        fileIdx + 1, lengthOfFiles, remainingTimeString),
                                 subProgressValue, String.format(fileUploadSubProgressTextTpl,
                                         subProgressPercent, sentString, fileSizeString, fileName)));
                     }

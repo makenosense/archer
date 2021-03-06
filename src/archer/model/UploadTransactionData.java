@@ -5,10 +5,7 @@ import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class UploadTransactionData {
 
@@ -18,6 +15,10 @@ public class UploadTransactionData {
     private final Map<File, Long> fileSizeMap = new HashMap<>();
     private final Map<File, Long> prevSizeMap = new HashMap<>();
     private long totalSize;
+
+    private Long lastRecordTime;
+    private long lastTotalSent = 0;
+    private String lastRemainingTimeString = "inf";
 
     public UploadTransactionData(SVNRepository repository, List<File> dirList, List<File> fileList,
                                  Map<File, String> uploadPathMap, Task<Void> task) throws Exception {
@@ -90,5 +91,37 @@ public class UploadTransactionData {
 
     public long getTotalSize() {
         return totalSize;
+    }
+
+    public String getRemainingTimeString(long totalSent) {
+        long recordTime = new Date().getTime();
+        if (lastRecordTime == null) {
+            lastRecordTime = recordTime;
+            lastTotalSent = totalSent;
+            return lastRemainingTimeString;
+        }
+        if (recordTime - lastRecordTime < 5000
+                && !"inf".equals(lastRemainingTimeString)) {
+            return lastRemainingTimeString;
+        }
+        if (totalSent >= totalSize) {
+            lastRemainingTimeString = "00:00:00";
+            return lastRemainingTimeString;
+        }
+        if (totalSent <= lastTotalSent) {
+            lastRecordTime = recordTime;
+            lastTotalSent = totalSent;
+            lastRemainingTimeString = "inf";
+            return lastRemainingTimeString;
+        }
+        double remainingTime = 1. * (totalSize - totalSent) * (recordTime - lastRecordTime) / (totalSent - lastTotalSent);
+        remainingTime /= 1000;
+        int hour = (int) (remainingTime / 3600);
+        int minute = (int) ((remainingTime % 3600) / 60);
+        int second = (int) (remainingTime % 60);
+        lastRecordTime = recordTime;
+        lastTotalSent = totalSent;
+        lastRemainingTimeString = String.format("%d:%02d:%02d", hour, minute, second);
+        return lastRemainingTimeString;
     }
 }
