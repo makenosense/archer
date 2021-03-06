@@ -321,7 +321,7 @@ public class InterfaceController extends BaseController {
         }
 
         /**
-         * 公共方法 - 主页 - 编辑
+         * 公共方法 - 主页 - 上传
          */
         public void uploadDir() {
             File dir = mainApp.chooseDirectory();
@@ -535,6 +535,9 @@ public class InterfaceController extends BaseController {
             }
         }
 
+        /**
+         * 公共方法 - 主页 - 新建文件夹
+         */
         public void createDir(String name) {
             String errorMsg = "文件夹新建失败";
             startExclusiveService(buildNonInteractiveService(
@@ -547,6 +550,16 @@ public class InterfaceController extends BaseController {
                     }, errorMsg));
         }
 
+        /**
+         * 公共方法 - 主页 - 下载
+         */
+        public void downloadEntry(JSObject pathArray, int length) {
+
+        }
+
+        /**
+         * 公共方法 - 主页 - 删除
+         */
         public void deleteEntry(JSObject pathArray, int length) {
             LinkedList<String> pathList = new LinkedList<>();
             for (int idx = 0; idx < length; ) {

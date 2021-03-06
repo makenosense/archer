@@ -175,6 +175,7 @@ function deleteEntry(paths) {
     }
 }
 
+/*上传*/
 $(function () {
     $("#repo-ops-upload-dir").click(function () {
         try {
@@ -192,6 +193,7 @@ $(function () {
     });
 });
 
+/*新建文件夹*/
 $(function () {
     let trNewDirSelector = "#tr-new-dir";
 
@@ -262,6 +264,12 @@ $(function () {
     });
 });
 
+/*下载*/
+$(function () {
+
+});
+
+/*删除*/
 $(function () {
     $("#repo-ops-delete-entry").click(function () {
         let paths = [];
@@ -287,6 +295,7 @@ $(function () {
     });
 });
 
+/*导航栏*/
 $(function () {
     repoNav.delegate("#repo-nav-ops-previous:not(.repo-nav-ops-disabled)", "click", function () {
         try {
@@ -328,6 +337,7 @@ $(function () {
     });
 });
 
+/*仓库文件列表*/
 $(function () {
     repoContentTable.find("th").mousemove(function (e) {
         let oLeft = $(this).offset().left
