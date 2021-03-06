@@ -1,7 +1,12 @@
 package archer.util;
 
 public class FileUtil {
+
     public static String getSizeString(double size) {
+        return getSizeString(size, 1);
+    }
+
+    public static String getSizeString(double size, int precision) {
         int unitSize = 1 << 10;
         String unit = "B";
         if (size > unitSize) {
@@ -20,6 +25,6 @@ public class FileUtil {
                 }
             }
         }
-        return String.format("%.2f %s", size, unit);
+        return String.format(String.format("%%.%df %%s", precision), size, unit);
     }
 }
