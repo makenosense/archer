@@ -1,5 +1,6 @@
 package archer.editor;
 
+import archer.MainApp;
 import archer.model.AppSettings;
 import archer.model.RepositoryPathNode;
 import org.tmatesoft.svn.core.*;
@@ -17,6 +18,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 
 public class DownloadEditor implements ISVNEditor {
+    private static final String tempSuffix = "." + MainApp.APP_NAME + "downloading";
 
     private final SVNDeltaProcessor deltaProcessor = new SVNDeltaProcessor();
     private final RepositoryPathNode parentPathNode;
@@ -32,9 +34,24 @@ public class DownloadEditor implements ISVNEditor {
         Path parentPath = parentPathNode.getPath();
         Path srcPath = Paths.get("/", srcPathString).normalize();
         if (!srcPath.startsWith(parentPath) || parentPath.startsWith(srcPath)) {
-            throwIOException("目标路径不在下载范围内");
+            throwIOException("目标路径不在下载范围内：" + srcPathString);
         }
         return new File(downloadParent, parentPathNode.relativize(srcPath).toString());
+    }
+
+    private File getTempDownloadTarget(String srcPathString) throws SVNException {
+        File downloadTarget = getDownloadTarget(srcPathString);
+        return new File(downloadTarget.getParent(), downloadTarget.getName() + tempSuffix);
+    }
+
+    private String getAnotherFileName(String fileName, int num) {
+        int lastDotIdx = fileName.lastIndexOf('.');
+        String fileNameBody = lastDotIdx >= 0 ? fileName.substring(0, lastDotIdx) : fileName;
+        String fileSuffix = lastDotIdx >= 0 ? fileName.substring(lastDotIdx) : "";
+        if (fileNameBody.length() > 0) {
+            fileNameBody += " ";
+        }
+        return String.format("%s(%d)%s", fileNameBody, num, fileSuffix);
     }
 
     private void throwIOException(String msg) throws SVNException {
@@ -102,15 +119,15 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void addFile(String path, String copyFromPath, long copyFromRevision) throws SVNException {
-        File newFile = getDownloadTarget(path);
-        if (newFile.exists()) {
-            throwIOException("文件已存在：" + newFile.getAbsolutePath());
+        File newTempFile = getTempDownloadTarget(path);
+        if (newTempFile.exists()) {
+            throwIOException("临时文件已存在：" + newTempFile.getAbsolutePath());
         }
-        newEntries.addFirst(newFile);
+        newEntries.addFirst(newTempFile);
         try {
-            newFile.createNewFile();
+            newTempFile.createNewFile();
         } catch (IOException e) {
-            throwIOException("文件创建失败：" + newFile.getAbsolutePath());
+            throwIOException("临时文件创建失败：" + newTempFile.getAbsolutePath());
         }
     }
 
@@ -126,7 +143,24 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void closeFile(String path, String textChecksum) throws SVNException {
-        // Do nothing
+        File newTempFile = getTempDownloadTarget(path);
+        File newFile = getDownloadTarget(path);
+        if (!newTempFile.isFile()) {
+            throwIOException("临时文件不存在：" + newTempFile.getAbsolutePath());
+        }
+        if (newFile.exists()) {
+            File parent = newFile.getParentFile();
+            String fileName = newFile.getName();
+            int num = 1;
+            while (newFile.exists()) {
+                newFile = new File(parent, getAnotherFileName(fileName, num++));
+            }
+        }
+        newEntries.addFirst(newFile);
+        if (!newTempFile.renameTo(newFile)) {
+            throwIOException("文件下载失败：" + path);
+        }
+        newEntries.remove(newTempFile);
     }
 
     @Override
@@ -148,7 +182,7 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void applyTextDelta(String path, String baseChecksum) throws SVNException {
-        deltaProcessor.applyTextDelta((File) null, getDownloadTarget(path), false);
+        deltaProcessor.applyTextDelta((File) null, getTempDownloadTarget(path), false);
     }
 
     @Override
