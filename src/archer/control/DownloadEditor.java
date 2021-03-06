@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.Objects;
 
 public class DownloadEditor implements ISVNEditor {
     private static final String tempSuffix = "." + MainApp.APP_NAME + "downloading";
@@ -24,6 +25,7 @@ public class DownloadEditor implements ISVNEditor {
     private final RepositoryPathNode parentPathNode;
     private final File downloadParent;
     private final LinkedList<File> newEntries = new LinkedList<>();
+    private String lastCheckSum;
 
     public DownloadEditor(RepositoryPathNode parentPathNode, File downloadParent) {
         this.parentPathNode = parentPathNode != null ? parentPathNode : new RepositoryPathNode(Paths.get("/"));
@@ -143,6 +145,9 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void closeFile(String path, String textChecksum) throws SVNException {
+        if (!Objects.equals(lastCheckSum, textChecksum)) {
+            throwIOException("下载文件校验失败：" + path);
+        }
         File newTempFile = getTempDownloadTarget(path);
         File newFile = getDownloadTarget(path);
         if (!newTempFile.isFile()) {
@@ -182,7 +187,7 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void applyTextDelta(String path, String baseChecksum) throws SVNException {
-        deltaProcessor.applyTextDelta((File) null, getTempDownloadTarget(path), false);
+        deltaProcessor.applyTextDelta((File) null, getTempDownloadTarget(path), true);
     }
 
     @Override
@@ -192,6 +197,6 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void textDeltaEnd(String path) {
-        deltaProcessor.textDeltaEnd();
+        lastCheckSum = deltaProcessor.textDeltaEnd();
     }
 }
