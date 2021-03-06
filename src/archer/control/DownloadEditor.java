@@ -1,4 +1,4 @@
-package archer.editor;
+package archer.control;
 
 import archer.MainApp;
 import archer.model.AppSettings;
