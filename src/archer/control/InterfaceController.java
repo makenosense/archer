@@ -403,8 +403,8 @@ public class InterfaceController extends BaseController {
                 String dirUploadProgressText = "上传文件夹";
                 String dirUploadProgressTextTpl = dirUploadProgressText + "（%d/%d）：%s";
                 String fileUploadProgressText = "上传文件";
-                String fileUploadProgressTextTpl = "[%s] " + fileUploadProgressText + "（%d/%d）：%s";
-                String fileUploadSubProgressTextTpl = "[%s] 上传进度：%s / %s";
+                String fileUploadProgressTextTpl = "[%6s] [%s / %s] 总进度：%d / %d \t| 剩余时间：%s";
+                String fileUploadSubProgressTextTpl = "[%6s] [%s / %s] 正在上传：%s";
                 String uploadCompleteProgressText = "上传完成";
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("upload", errorMsg) {
                     @Override
@@ -511,25 +511,32 @@ public class InterfaceController extends BaseController {
                         double progressValue = 1. * (dirIdx + 1) / lengthOfDirs;
                         String dirName = dir.getName();
                         Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(dirUploadProgressTextTpl, dirIdx + 1, lengthOfDirs, dirName)));
+                                progressValue, String.format(dirUploadProgressTextTpl,
+                                        dirIdx + 1, lengthOfDirs, dirName)));
                     }
 
                     private void updateProgress(File file, long sent) {
+                        long totalSent = uploadTransactionData.getPrevSize(file) + sent;
+                        long totalSize = Math.max(uploadTransactionData.getTotalSize(), 1);
+                        double progressValue = 1. * totalSent / totalSize;
+                        String progressPercent = String.format("%.1f%%", 100 * progressValue);
+                        String totalSentString = FileUtil.getSizeString(totalSent, 0);
+                        String totalSizeString = FileUtil.getSizeString(totalSize, 0);
                         int fileIdx = uploadTransactionData.indexOfFile(file);
                         int lengthOfFiles = uploadTransactionData.lengthOfFiles();
-                        long totalSent = uploadTransactionData.getPrevSize(file) + sent;
-                        long totalSize = uploadTransactionData.getTotalSize();
-                        double progressValue = 1. * totalSent / Math.max(totalSize, 1);
-                        String progressPercent = String.format("%.1f%%", 100 * progressValue);
-                        String fileName = file.getName();
-                        long fileSize = uploadTransactionData.getSize(file);
-                        double subProgressValue = 1. * sent / Math.max(fileSize, 1);
+
+                        long fileSize = Math.max(uploadTransactionData.getSize(file), 1);
+                        double subProgressValue = 1. * sent / fileSize;
                         String subProgressPercent = String.format("%.1f%%", 100 * subProgressValue);
-                        String sentString = FileUtil.getSizeString(sent);
-                        String fileSizeString = FileUtil.getSizeString(fileSize);
+                        String sentString = FileUtil.getSizeString(sent, 0);
+                        String fileSizeString = FileUtil.getSizeString(fileSize, 0);
+                        String fileName = file.getName();
                         Platform.runLater(() -> mainApp.setProgress(
-                                progressValue, String.format(fileUploadProgressTextTpl, progressPercent, fileIdx + 1, lengthOfFiles, fileName),
-                                subProgressValue, String.format(fileUploadSubProgressTextTpl, subProgressPercent, sentString, fileSizeString)));
+                                progressValue, String.format(fileUploadProgressTextTpl,
+                                        progressPercent, totalSentString, totalSizeString,
+                                        fileIdx + 1, lengthOfFiles, "?"),
+                                subProgressValue, String.format(fileUploadSubProgressTextTpl,
+                                        subProgressPercent, sentString, fileSizeString, fileName)));
                     }
                 }, errorMsg));
             }
