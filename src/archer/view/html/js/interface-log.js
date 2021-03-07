@@ -22,6 +22,14 @@ let logTreeOptions = {
 };
 
 
+function loadRepoLog() {
+    try {
+        javaApi.loadRepositoryLog();
+    } catch (error) {
+        logError(error);
+    }
+}
+
 function createLogTree(data) {
     logTreeOptions.core.data = data;
     destroyLogTree();
