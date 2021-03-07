@@ -370,6 +370,10 @@ th[col-key="size"], td[col-key="size"] {
     padding: 10px 20px;
 }
 
+#log-tree li.revision .jstree-anchor:not(.jstree-clicked) {
+    color: #faf04a !important;
+}
+
 #log-tree li.added .jstree-anchor:not(.jstree-clicked) {
     color: #00c000 !important;
 }

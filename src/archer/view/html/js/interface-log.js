@@ -8,31 +8,14 @@ let logTreeOptions = {
         animation: false,
     },
     types: {
-        date: {icon: "date fas fa-history"},
-        newDir: {
-            icon: "fas fa-folder",
-            li_attr: {class: "added"},
-        },
-        modifiedDir: {
-            icon: "fas fa-folder",
-            li_attr: {class: "modified"},
-        },
-        deletedDir: {
-            icon: "fas fa-folder",
-            li_attr: {class: "deleted"},
-        },
-        newFile: {
-            icon: "far fa-file",
-            li_attr: {class: "added"},
-        },
-        modifiedFile: {
-            icon: "far fa-file",
-            li_attr: {class: "modified"},
-        },
-        deletedFile: {
-            icon: "far fa-file",
-            li_attr: {class: "deleted"},
-        },
+        date: {icon: "fas fa-calendar-alt", li_attr: {class: "date"}},
+        revision: {icon: "fas fa-history", li_attr: {class: "revision"}},
+        dir_a: {icon: "fas fa-folder", li_attr: {class: "added"}},
+        dir_m: {icon: "fas fa-folder", li_attr: {class: "modified"}},
+        dir_d: {icon: "fas fa-folder", li_attr: {class: "deleted"}},
+        file_a: {icon: "far fa-file", li_attr: {class: "added"}},
+        file_m: {icon: "far fa-file", li_attr: {class: "modified"}},
+        file_d: {icon: "far fa-file", li_attr: {class: "deleted"}},
     },
     plugins: ["types"],
 };
