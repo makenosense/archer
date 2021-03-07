@@ -88,11 +88,11 @@ body {
 }
 
 /*仓库操作*/
-#repo-ops {
+#repo-ops, #log-ops {
     padding: 5px 10px;
 }
 
-#repo-ops button {
+#repo-ops button, #log-ops button {
     color: inherit;
     background-color: rgba(255, 255, 255, 0);
     border: none;
@@ -102,11 +102,11 @@ body {
     cursor: default;
 }
 
-#repo-ops button > i {
+#repo-ops button > i, #log-ops button > i {
     margin-right: 3px;
 }
 
-#repo-ops button:hover {
+#repo-ops button:hover, #log-ops button:hover {
     color: #ffffff;
     background-color: #515151;
 }
@@ -328,4 +328,13 @@ th[col-key="size"], td[col-key="size"] {
 
 #repo-content-status-count i {
     font-size: inherit;
+}
+
+/*仓库历史记录*/
+#log-status {
+    display: inline-block;
+    line-height: 26px;
+    padding: 8px 0;
+    height: auto;
+    vertical-align: middle;
 }
