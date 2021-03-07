@@ -333,7 +333,7 @@ $(function () {
     });
 
     $(window).resize(function () {
-        if (repoNavPath.is(":visible")) {
+        if (repoNav.is(":visible")) {
             adjustRepoNavPath();
         }
     });
