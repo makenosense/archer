@@ -6,6 +6,7 @@ let logTreeOptions = {
             ellipsis: true,
         },
         animation: false,
+        dblclick_toggle: false,
     },
     types: {
         date: {icon: "fas fa-calendar-alt", li_attr: {class: "date"}},
@@ -35,5 +36,11 @@ function destroyLogTree() {
 }
 
 $(function () {
-
+    $('#log-tree').on('select_node.jstree', function (e, data) {
+        let logTree = $.jstree.reference("#log-tree");
+        logTree.deselect_node(data.node);
+        if (data.node.children.length > 0) {
+            logTree.toggle_node(data.node);
+        }
+    });
 });

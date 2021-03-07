@@ -344,16 +344,12 @@ th[col-key="size"], td[col-key="size"] {
 }
 
 .jstree-hovered {
-    background-color: unset !important;
-}
-
-.jstree-clicked {
-    color: #eeeeee !important;
-    background-color: #3697dc !important;
+    background-color: #515151 !important;
 }
 
 .jstree-anchor {
     color: unset !important;
+    text-shadow: unset !important;
 }
 
 .jstree-anchor i {
@@ -370,18 +366,26 @@ th[col-key="size"], td[col-key="size"] {
     padding: 10px 20px;
 }
 
-#log-tree li.revision .jstree-anchor:not(.jstree-clicked) {
+#log-tree li.revision .jstree-anchor:not(.jstree-hovered) {
     color: #faf04a !important;
 }
 
-#log-tree li.added .jstree-anchor:not(.jstree-clicked) {
+#log-tree li.added .jstree-anchor:not(.jstree-hovered) {
     color: #00c000 !important;
 }
 
-#log-tree li.modified .jstree-anchor:not(.jstree-clicked) {
+#log-tree li.modified .jstree-anchor:not(.jstree-hovered) {
     color: #6896ee !important;
 }
 
-#log-tree li.deleted .jstree-anchor:not(.jstree-clicked) {
+#log-tree li.deleted .jstree-anchor:not(.jstree-hovered) {
     color: #666666 !important;
+}
+
+.revision-time:not(.jstree-hovered *) {
+    color: #cccccc;
+}
+
+.revision-item-count:not(.jstree-hovered *) {
+    color: #999999;
 }
