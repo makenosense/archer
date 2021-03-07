@@ -584,6 +584,14 @@ public class InterfaceController extends BaseController {
                         }
                     }, errorMsg));
         }
+
+        /**
+         * 公共方法 - 历史记录
+         */
+        public void loadRepositoryLog() {
+            startExclusiveService(buildNonInteractiveService(
+                    new LoadRepositoryLogService(), "仓库历史记录加载失败"));
+        }
     }
 
     public SVNRepository getRepository() {
