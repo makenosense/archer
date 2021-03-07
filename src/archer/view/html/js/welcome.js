@@ -81,7 +81,7 @@ layui.use(["element", "form", "laytpl"], function () {
                     return "端口不合法";
                 }
             }
-        }
+        },
     });
 
     form.on("select(form-add-repo-protocol)", function (data) {
