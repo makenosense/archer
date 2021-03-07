@@ -333,7 +333,9 @@ $(function () {
     });
 
     $(window).resize(function () {
-        adjustRepoNavPath();
+        if (repoNavPath.is(":visible")) {
+            adjustRepoNavPath();
+        }
     });
 });
 
@@ -408,7 +410,9 @@ $(function () {
     });
 
     $(window).resize(function () {
-        resizeRepoContentTableColumn();
+        if (repoContentTable.is(":visible")) {
+            resizeRepoContentTableColumn();
+        }
     });
 
     repoContentTable.delegate(".th-responsive", "click", function () {
