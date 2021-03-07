@@ -35,6 +35,20 @@ function destroyLogTree() {
     }
 }
 
+function expandAllLogTreeNodes() {
+    let logTree = $.jstree.reference("#log-tree");
+    if (logTree != null) {
+        logTree.open_all();
+    }
+}
+
+function collapseAllLogTreeNodes() {
+    let logTree = $.jstree.reference("#log-tree");
+    if (logTree != null) {
+        logTree.close_all();
+    }
+}
+
 $(function () {
     $('#log-tree').on('select_node.jstree', function (e, data) {
         let logTree = $.jstree.reference("#log-tree");

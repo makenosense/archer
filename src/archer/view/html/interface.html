@@ -209,8 +209,16 @@
     <div class="content-item">
         <div id="log-ops" class="layui-btn-group">
             <button type="button" class="layui-btn" id="log-ops-refresh">
-                <i class="fas fa-sync-alt"></i>
+                <i class="fas fa-redo-alt"></i>
                 刷新
+            </button>
+            <button type="button" class="layui-btn" id="log-ops-expand-all" onclick="expandAllLogTreeNodes()">
+                <i class="fas fa-caret-down"></i>
+                全部展开
+            </button>
+            <button type="button" class="layui-btn" id="log-ops-collapse-all" onclick="collapseAllLogTreeNodes()">
+                <i class="fas fa-caret-up"></i>
+                全部收起
             </button>
         </div>
         <span id="log-status">
