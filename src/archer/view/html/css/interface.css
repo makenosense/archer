@@ -338,3 +338,46 @@ th[col-key="size"], td[col-key="size"] {
     height: auto;
     vertical-align: middle;
 }
+
+.jstree-default-dark {
+    background-color: unset !important;
+}
+
+.jstree-hovered {
+    background-color: unset !important;
+}
+
+.jstree-clicked {
+    color: #eeeeee !important;
+    background-color: #3697dc !important;
+}
+
+.jstree-anchor {
+    color: unset !important;
+}
+
+.jstree-anchor i {
+    font-size: 16px;
+    color: inherit !important;
+}
+
+#log-tree {
+    position: fixed;
+    top: 42px;
+    left: 66px;
+    right: 0;
+    width: auto;
+    padding: 10px 20px;
+}
+
+#log-tree li.added .jstree-anchor:not(.jstree-clicked) {
+    color: #00c000 !important;
+}
+
+#log-tree li.modified .jstree-anchor:not(.jstree-clicked) {
+    color: #6896ee !important;
+}
+
+#log-tree li.deleted .jstree-anchor:not(.jstree-clicked) {
+    color: #666666 !important;
+}
