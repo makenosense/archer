@@ -406,7 +406,7 @@ public class InterfaceController extends BaseController {
                 String fileUploadProgressTextTpl = "[%6s] [%s / %s] 总进度：%d / %d \t| 剩余时间：%s";
                 String fileUploadSubProgressTextTpl = "[%6s] [%s / %s] 正在上传：%s";
                 String uploadCompleteProgressText = "上传完成";
-                startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("upload", errorMsg) {
+                startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("上传", errorMsg) {
                     @Override
                     protected void beforeEditing(Task<Void> task) throws Exception {
                         Platform.runLater(() -> {
@@ -549,7 +549,7 @@ public class InterfaceController extends BaseController {
         public void createDir(String name) {
             String errorMsg = "文件夹新建失败";
             startExclusiveService(buildNonInteractiveService(
-                    new EditingWithRefreshingService("createDir", errorMsg) {
+                    new EditingWithRefreshingService("新建文件夹", errorMsg) {
                         @Override
                         protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                             editor.addDir(path.resolve(name).toString(), null, -1);
@@ -575,7 +575,7 @@ public class InterfaceController extends BaseController {
             }
             String errorMsg = "删除失败";
             startExclusiveService(buildNonInteractiveService(
-                    new EditingWithRefreshingService("deleteEntry", errorMsg) {
+                    new EditingWithRefreshingService("删除", errorMsg) {
                         @Override
                         protected void doEditing(ISVNEditor editor, Task<Void> task) throws Exception {
                             for (String p : pathList) {
