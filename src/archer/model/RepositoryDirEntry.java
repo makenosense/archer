@@ -8,7 +8,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
 
-public class RepositoryDirEntry extends BaseModel {
+public class RepositoryDirEntry {
     private static final String TYPE_CODE_DIR = "DIR";
     private static final String TYPE_CODE_FILE = "FILE";
     private static final String TYPE_CODE_UNKNOWN = "UNKNOWN";

@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public class RepositoryPath extends BaseModel {
+public class RepositoryPath {
     private static final int MAX_HISTORY_SIZE = 100;
 
     private final LinkedList<Path> pathHistory = new LinkedList<>();

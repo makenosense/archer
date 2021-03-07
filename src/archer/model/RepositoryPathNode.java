@@ -2,7 +2,7 @@ package archer.model;
 
 import java.nio.file.Path;
 
-public class RepositoryPathNode extends BaseModel {
+public class RepositoryPathNode {
 
     private final Path path;
 
