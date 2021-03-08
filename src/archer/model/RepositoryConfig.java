@@ -134,7 +134,7 @@ public class RepositoryConfig extends BaseModel {
 
     @XmlRootElement(name = "RepositoryConfigList")
     private static class RepositoryConfigList {
-        public static final String XML_PATH = Paths.get(APP_HOME, "RepositoryConfigList.xml").toString();
+        private static final String XML_PATH = Paths.get(APP_HOME, "RepositoryConfigList.xml").toString();
 
         private LinkedList<RepositoryConfig> repositoryConfigs;
 

@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 
 @XmlRootElement(name = "AppSettings")
 public class AppSettings extends BaseModel {
-    public static final String XML_PATH = Paths.get(APP_HOME, "AppSettings.xml").toString();
+    private static final String XML_PATH = Paths.get(APP_HOME, "AppSettings.xml").toString();
     private static final Logger LOGGER = Logger.getLogger("AppSettings");
 
     private File downloadParent;
