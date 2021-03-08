@@ -385,6 +385,10 @@ th[col-key="size"], td[col-key="size"] {
     color: #666666 !important;
 }
 
+.log-date {
+    font-weight: bolder;
+}
+
 .revision-time:not(.jstree-hovered *) {
     color: #cccccc;
 }

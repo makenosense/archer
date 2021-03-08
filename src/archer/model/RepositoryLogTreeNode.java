@@ -1,6 +1,7 @@
 package archer.model;
 
 public class RepositoryLogTreeNode {
+    public static final String DATE_TEXT_TPL = "<span class='log-date'>%s</span>";
     public static final String REVISION_TEXT_TPL = "<span class='revision-time'>%tR</span> " +
             "(%d) %s<span class='revision-item-count'> - %d项</span>";
 
