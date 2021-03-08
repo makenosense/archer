@@ -11,29 +11,5 @@ public class RepositoryLogTreeNode {
     public static class State {
 
         public boolean opened = false;
-
-        public boolean isOpened() {
-            return opened;
-        }
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getParent() {
-        return parent;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public State getState() {
-        return state;
     }
 }
