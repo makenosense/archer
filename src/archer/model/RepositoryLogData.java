@@ -32,7 +32,7 @@ public class RepositoryLogData extends BaseModel {
         this(null);
     }
 
-    public RepositoryLogData(String repositoryUUID) {
+    private RepositoryLogData(String repositoryUUID) {
         this.repositoryUUID = repositoryUUID;
         logEntries = new LinkedList<>();
     }
