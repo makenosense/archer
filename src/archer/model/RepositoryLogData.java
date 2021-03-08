@@ -3,16 +3,13 @@ package archer.model;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.annotation.XmlRootElement;
-import java.io.File;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-@XmlRootElement(name = "RepositoryLogData")
-public class RepositoryLogData extends BaseModel {
+public class RepositoryLogData extends BaseModel implements Serializable {
+    private static final long serialVersionUID = 20210308000L;
     private static final String CACHE_PATH = Paths.get(APP_HOME, "cache").toString();
     private static final String CACHE_SUFFIX = ".logcache";
     private static final Logger LOGGER = Logger.getLogger("RepositoryLogData");
@@ -46,9 +43,7 @@ public class RepositoryLogData extends BaseModel {
             repositoryUUID = repository.getRepositoryUUID(true);
             File logCacheFile = getLogCacheFile(repositoryUUID);
             if (logCacheFile.isFile()) {
-                return (RepositoryLogData) JAXBContext.newInstance(RepositoryLogData.class)
-                        .createUnmarshaller()
-                        .unmarshal(logCacheFile);
+                return (RepositoryLogData) new ObjectInputStream(new FileInputStream(logCacheFile)).readObject();
             }
         } catch (Exception e) {
             LOGGER.warning("历史记录缓存文件读取失败：" + e.toString());
@@ -58,10 +53,7 @@ public class RepositoryLogData extends BaseModel {
 
     public void save() throws Exception {
         if (repositoryUUID != null) {
-            Marshaller marshaller = JAXBContext.newInstance(RepositoryLogData.class)
-                    .createMarshaller();
-            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            marshaller.marshal(this, getLogCacheFile(repositoryUUID));
+            new ObjectOutputStream(new FileOutputStream(getLogCacheFile(repositoryUUID))).writeObject(this);
         }
     }
 
