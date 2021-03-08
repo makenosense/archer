@@ -18,7 +18,7 @@ let logTreeOptions = {
         file_m: {icon: "far fa-file", li_attr: {class: "modified"}},
         file_d: {icon: "far fa-file", li_attr: {class: "deleted"}},
     },
-    plugins: ["types"],
+    plugins: ["types", "sort"],
 };
 
 
