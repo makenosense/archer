@@ -39,12 +39,12 @@ function createLogTree() {
         let data = [];
         $.each(javaApi.getLogTreeNodeArray(), function (idx, treeNode) {
             data.push({
-                id: treeNode.getId(),
-                parent: treeNode.getParent(),
-                type: treeNode.getType(),
-                text: treeNode.getText(),
+                id: treeNode.id,
+                parent: treeNode.parent,
+                type: treeNode.type,
+                text: treeNode.text,
                 state: {
-                    opened: treeNode.getState().isOpened(),
+                    opened: treeNode.state.opened,
                 },
             });
         });
