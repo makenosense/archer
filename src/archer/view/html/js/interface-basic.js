@@ -10,6 +10,8 @@ layui.use(["element", "form", "laytpl"], function () {
         let sidebarTabId = data.elem.prevObject.attr("id");
         if (sidebarTabId === "sidebar-repo-home") {
             loadRepoContent();
+        } else if (sidebarTabId === "sidebar-repo-log") {
+            loadRepoLog();
         }
     });
 
