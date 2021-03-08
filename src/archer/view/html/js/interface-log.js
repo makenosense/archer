@@ -10,6 +10,7 @@ let logTreeOptions = {
     types: {
         date: {icon: "fas fa-calendar-alt", li_attr: {class: "date"}},
         revision: {icon: "fas fa-history", li_attr: {class: "revision"}},
+        dir: {icon: "fas fa-folder"},
         dir_a: {icon: "fas fa-folder", li_attr: {class: "added"}},
         dir_m: {icon: "fas fa-folder", li_attr: {class: "modified"}},
         dir_d: {icon: "fas fa-folder", li_attr: {class: "deleted"}},
