@@ -12,10 +12,7 @@ import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import netscape.javascript.JSObject;
-import org.tmatesoft.svn.core.SVNDirEntry;
-import org.tmatesoft.svn.core.SVNErrorCode;
-import org.tmatesoft.svn.core.SVNErrorMessage;
-import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.internal.wc.SVNErrorManager;
 import org.tmatesoft.svn.core.internal.wc.SVNFileUtil;
 import org.tmatesoft.svn.core.io.ISVNEditor;
@@ -84,7 +81,8 @@ public class InterfaceController extends BaseController {
         /**
          * 私有字段
          */
-        private RepositoryContentData repositoryContentData = new RepositoryContentData();
+        private final RepositoryContentData repositoryContentData = new RepositoryContentData();
+        private RepositoryLogData repositoryLogData;
         private UploadTransactionData uploadTransactionData;
 
         /**
@@ -130,7 +128,6 @@ public class InterfaceController extends BaseController {
                     @Override
                     protected Void call() {
                         try {
-                            repositoryContentData = new RepositoryContentData();
                             repositoryContentData.pathNodeList = path.getPathNodeList();
                             if (repository.checkPath(path.toString(), -1) != SVNNodeKind.DIR) {
                                 throw new Exception("文件夹不存在");
@@ -231,6 +228,43 @@ public class InterfaceController extends BaseController {
                     serviceCleanup();
                     getWindow().call("loadRepoContent");
                 });
+            }
+        }
+
+        private class LoadRepositoryLogService extends Service<Void> {
+
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        try {
+                            if (repositoryLogData == null) {
+                                repositoryLogData = RepositoryLogData.load(repository);
+                            }
+                            long latestRevision = repository.getLatestRevision();
+                            long youngestInCache = repositoryLogData.getYoungestRevision();
+                            if (latestRevision > youngestInCache) {
+                                LinkedList<SVNLogEntry> newLogEntries = new LinkedList<>();
+                                repository.log(new String[]{""}, newLogEntries, youngestInCache + 1, latestRevision, true, true);
+                                if (newLogEntries.size() > 0) {
+                                    for (SVNLogEntry newLogEntry : newLogEntries) {
+                                        if (newLogEntry.getRevision() != repositoryLogData.getYoungestRevision() + 1) {
+                                            throw new Exception("版本号不连续");
+                                        }
+                                        repositoryLogData.getLogEntries().push(newLogEntry);
+                                    }
+                                    repositoryLogData.save();
+                                }
+                            }
+                        } catch (Exception e) {
+                            Platform.runLater(() -> AlertUtil.error("仓库历史记录加载失败", e));
+                        } finally {
+                            Platform.runLater(JavaApi.this::serviceCleanup);
+                        }
+                        return null;
+                    }
+                };
             }
         }
 
