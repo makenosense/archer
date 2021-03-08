@@ -50,7 +50,13 @@ function createLogTree() {
         });
         logTreeOptions.core.data = data;
         destroyLogTree();
-        $("#log-tree").jstree(logTreeOptions);
+        $("#log-tree").jstree(logTreeOptions).on("select_node.jstree", function (e, data) {
+            let logTree = $.jstree.reference("#log-tree");
+            logTree.deselect_node(data.node);
+            if (data.node.children.length > 0) {
+                logTree.toggle_node(data.node);
+            }
+        });
     } catch (error) {
         logError(error);
     }
@@ -78,11 +84,4 @@ function collapseAllLogTreeNodes() {
 }
 
 $(function () {
-    $('#log-tree').on('select_node.jstree', function (e, data) {
-        let logTree = $.jstree.reference("#log-tree");
-        logTree.deselect_node(data.node);
-        if (data.node.children.length > 0) {
-            logTree.toggle_node(data.node);
-        }
-    });
 });

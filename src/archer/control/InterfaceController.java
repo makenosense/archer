@@ -112,7 +112,7 @@ public class InterfaceController extends BaseController {
         }
 
         private void cancelExclusiveService() {
-            if (service != null && service.isRunning()) {
+            if (service != null && service.isRunning() && AlertUtil.confirm("确定取消上传吗？")) {
                 service.cancel();
             }
         }
