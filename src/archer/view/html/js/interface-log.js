@@ -30,6 +30,10 @@ function loadRepoLog() {
     }
 }
 
+function setLogCacheRefreshingTime(lastRefreshingTime) {
+    $("#log-last-refreshing-time").text(lastRefreshingTime);
+}
+
 function createLogTree(data) {
     logTreeOptions.core.data = data;
     destroyLogTree();

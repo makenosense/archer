@@ -5,6 +5,7 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.io.*;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ public class RepositoryLogData extends BaseModel implements Serializable {
 
     private String repositoryUUID;
     private LinkedList<SVNLogEntry> logEntries;
+    private Long lastChangeTime;
 
     static {
         File cache = new File(CACHE_PATH);
@@ -85,5 +87,18 @@ public class RepositoryLogData extends BaseModel implements Serializable {
 
     public void setLogEntries(LinkedList<SVNLogEntry> logEntries) {
         this.logEntries = logEntries;
+    }
+
+    public Long getLastChangeTime() {
+        return lastChangeTime;
+    }
+
+    public String getLastChangeTimeString() {
+        Date date = new Date(lastChangeTime);
+        return String.format("%tF %tT", date, date);
+    }
+
+    public void setLastChangeTime(Long lastChangeTime) {
+        this.lastChangeTime = lastChangeTime;
     }
 }

@@ -262,12 +262,16 @@ public class InterfaceController extends BaseController {
                                             throw new Exception("版本号不连续");
                                         }
                                         repositoryLogData.getLogEntries().push(newLogEntry);
+                                        repositoryLogData.setLastChangeTime(new Date().getTime());
                                     }
                                     repositoryLogData.save();
                                 }
                             }
                             if (rebuild) {
-                                Platform.runLater(() -> getWindow().call("createLogTree", repositoryLogData.buildLogTreeNodeArray()));
+                                Platform.runLater(() -> {
+                                    getWindow().call("createLogTree", repositoryLogData.buildLogTreeNodeArray());
+                                    getWindow().call("setLogCacheRefreshingTime", repositoryLogData.getLastChangeTimeString());
+                                });
                             }
                         } catch (Exception e) {
                             Platform.runLater(() -> AlertUtil.error("仓库历史记录加载失败", e));
