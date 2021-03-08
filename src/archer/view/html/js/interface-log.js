@@ -3,7 +3,6 @@ let logTreeOptions = {
         themes: {
             name: "default-dark",
             dots: false,
-            ellipsis: true,
         },
         animation: false,
         dblclick_toggle: false,

@@ -362,10 +362,10 @@ th[col-key="size"], td[col-key="size"] {
     top: 42px;
     left: 66px;
     right: 0;
-    bottom: 20px;
+    bottom: 0;
     width: auto;
     height: auto;
-    overflow-y: scroll;
+    overflow: scroll;
     padding: 10px 20px;
 }
 
