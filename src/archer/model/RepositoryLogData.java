@@ -76,7 +76,9 @@ public class RepositoryLogData extends BaseModel implements Serializable {
     }
 
     public Object[] buildLogTreeNodeArray() {
-        return new Object[0];
+        return new RepositoryLogTreeNode[]{
+                new RepositoryLogTreeNode(),
+        };
     }
 
     public String getRepositoryUUID() {

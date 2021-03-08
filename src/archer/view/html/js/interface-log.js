@@ -34,10 +34,26 @@ function setLogCacheRefreshingTime(lastRefreshingTime) {
     $("#log-last-refreshing-time").text(lastRefreshingTime);
 }
 
-function createLogTree(data) {
-    logTreeOptions.core.data = data;
-    destroyLogTree();
-    $("#log-tree").jstree(logTreeOptions);
+function createLogTree() {
+    try {
+        let data = [];
+        $.each(javaApi.getLogTreeNodeArray(), function (idx, treeNode) {
+            data.push({
+                id: treeNode.getId(),
+                parent: treeNode.getParent(),
+                type: treeNode.getType(),
+                text: treeNode.getText(),
+                state: {
+                    opened: treeNode.getState().isOpened(),
+                },
+            });
+        });
+        logTreeOptions.core.data = data;
+        destroyLogTree();
+        $("#log-tree").jstree(logTreeOptions);
+    } catch (error) {
+        logError(error);
+    }
 }
 
 function destroyLogTree() {

@@ -269,7 +269,7 @@ public class InterfaceController extends BaseController {
                             }
                             if (rebuild) {
                                 Platform.runLater(() -> {
-                                    getWindow().call("createLogTree", repositoryLogData.buildLogTreeNodeArray());
+                                    getWindow().call("createLogTree");
                                     getWindow().call("setLogCacheRefreshingTime", repositoryLogData.getLastChangeTimeString());
                                 });
                             }
@@ -641,6 +641,10 @@ public class InterfaceController extends BaseController {
         public void loadRepositoryLog() {
             startExclusiveService(buildNonInteractiveService(
                     new LoadRepositoryLogService(), "仓库历史记录加载失败"));
+        }
+
+        public Object[] getLogTreeNodeArray() {
+            return repositoryLogData.buildLogTreeNodeArray();
         }
     }
 
