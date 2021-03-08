@@ -9,7 +9,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.logging.Logger;
 
 @XmlRootElement(name = "RepositoryLogData")
@@ -19,7 +18,7 @@ public class RepositoryLogData extends BaseModel {
     private static final Logger LOGGER = Logger.getLogger("RepositoryLogData");
 
     private String repositoryUUID;
-    private List<SVNLogEntry> logEntries;
+    private LinkedList<SVNLogEntry> logEntries;
 
     static {
         File cache = new File(CACHE_PATH);
@@ -66,6 +65,10 @@ public class RepositoryLogData extends BaseModel {
         }
     }
 
+    public long getYoungestRevision() {
+        return logEntries.size() > 0 ? logEntries.peek().getRevision() : -1;
+    }
+
     public String getRepositoryUUID() {
         return repositoryUUID;
     }
@@ -74,11 +77,11 @@ public class RepositoryLogData extends BaseModel {
         this.repositoryUUID = repositoryUUID;
     }
 
-    public List<SVNLogEntry> getLogEntries() {
+    public LinkedList<SVNLogEntry> getLogEntries() {
         return logEntries;
     }
 
-    public void setLogEntries(List<SVNLogEntry> logEntries) {
+    public void setLogEntries(LinkedList<SVNLogEntry> logEntries) {
         this.logEntries = logEntries;
     }
 }
