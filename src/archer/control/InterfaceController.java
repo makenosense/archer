@@ -244,6 +244,11 @@ public class InterfaceController extends BaseController {
                             }
                             long latestRevision = repository.getLatestRevision();
                             long youngestInCache = repositoryLogData.getYoungestRevision();
+                            if (latestRevision < youngestInCache) {
+                                repositoryLogData.dumpCache();
+                                repositoryLogData = RepositoryLogData.load(repository);
+                                youngestInCache = repositoryLogData.getYoungestRevision();
+                            }
                             if (latestRevision > youngestInCache) {
                                 LinkedList<SVNLogEntry> newLogEntries = new LinkedList<>();
                                 repository.log(new String[]{""}, newLogEntries, youngestInCache + 1, latestRevision, true, true);
@@ -255,6 +260,7 @@ public class InterfaceController extends BaseController {
                                         repositoryLogData.getLogEntries().push(newLogEntry);
                                     }
                                     repositoryLogData.save();
+                                    Platform.runLater(() -> getWindow().call("createLogTree", repositoryLogData.buildLogTreeNodeArray()));
                                 }
                             }
                         } catch (Exception e) {

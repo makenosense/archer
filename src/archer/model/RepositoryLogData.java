@@ -57,8 +57,18 @@ public class RepositoryLogData extends BaseModel implements Serializable {
         }
     }
 
+    public void dumpCache() {
+        if (repositoryUUID != null) {
+            getLogCacheFile(repositoryUUID).delete();
+        }
+    }
+
     public long getYoungestRevision() {
         return logEntries.size() > 0 ? logEntries.peek().getRevision() : -1;
+    }
+
+    public Object[] buildLogTreeNodeArray() {
+        return new Object[0];
     }
 
     public String getRepositoryUUID() {
