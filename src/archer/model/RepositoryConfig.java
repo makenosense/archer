@@ -139,7 +139,7 @@ public class RepositoryConfig extends BaseModel {
         private LinkedList<RepositoryConfig> repositoryConfigs;
 
         public RepositoryConfigList() {
-            this.repositoryConfigs = new LinkedList<>();
+            repositoryConfigs = new LinkedList<>();
         }
 
         public RepositoryConfigList(LinkedList<RepositoryConfig> repositoryConfigs) {
