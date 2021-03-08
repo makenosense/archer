@@ -19,7 +19,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 
 public class DownloadEditor implements ISVNEditor {
-    private static final String tempSuffix = "." + MainApp.APP_NAME + "downloading";
+    private static final String TEMP_SUFFIX = "." + MainApp.APP_NAME + "downloading";
 
     private final SVNDeltaProcessor deltaProcessor = new SVNDeltaProcessor();
     private final RepositoryPathNode parentPathNode;
@@ -43,7 +43,7 @@ public class DownloadEditor implements ISVNEditor {
 
     private File getTempDownloadTarget(String srcPathString) throws SVNException {
         File downloadTarget = getDownloadTarget(srcPathString);
-        return new File(downloadTarget.getParent(), downloadTarget.getName() + tempSuffix);
+        return new File(downloadTarget.getParent(), downloadTarget.getName() + TEMP_SUFFIX);
     }
 
     private String getAnotherFileName(String fileName, int num) {
