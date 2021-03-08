@@ -45,7 +45,10 @@ public class RepositoryLogData extends BaseModel implements Serializable {
             repositoryUUID = repository.getRepositoryUUID(true);
             File logCacheFile = getLogCacheFile(repositoryUUID);
             if (logCacheFile.isFile()) {
-                return (RepositoryLogData) new ObjectInputStream(new FileInputStream(logCacheFile)).readObject();
+                try (FileInputStream fileInputStream = new FileInputStream(logCacheFile);
+                     ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+                    return (RepositoryLogData) objectInputStream.readObject();
+                }
             }
         } catch (Exception e) {
             LOGGER.warning("历史记录缓存文件读取失败：" + e.toString());
@@ -55,7 +58,10 @@ public class RepositoryLogData extends BaseModel implements Serializable {
 
     public void save() throws Exception {
         if (repositoryUUID != null) {
-            new ObjectOutputStream(new FileOutputStream(getLogCacheFile(repositoryUUID))).writeObject(this);
+            try (FileOutputStream fileOutputStream = new FileOutputStream(getLogCacheFile(repositoryUUID));
+                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream)) {
+                objectOutputStream.writeObject(this);
+            }
         }
     }
 
