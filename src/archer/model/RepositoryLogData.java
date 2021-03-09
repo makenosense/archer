@@ -107,9 +107,35 @@ public class RepositoryLogData extends BaseModel implements Serializable {
     }
 
     public Object[] buildLogTreeNodeArray() {
-        return new RepositoryLogTreeNode[]{
-                new RepositoryLogTreeNode(),
-        };
+        HashMap<String, RepositoryLogTreeNode> dateNodes = new HashMap<>();
+        HashMap<Long, RepositoryLogTreeNode> revisionNodes = new HashMap<>();
+        HashMap<String, RepositoryLogTreeNode> pathNodes = new HashMap<>();
+        String latestDateString = null;
+        for (SVNLogEntry logEntry : logEntries) {
+            Date date = logEntry.getDate();
+            String dateString = String.format("%tF", date);
+            if (latestDateString == null || dateString.compareTo(latestDateString) > 0) {
+                latestDateString = dateString;
+            }
+            long revision = logEntry.getRevision();
+            String message = logEntry.getMessage();
+            Map<String, SVNLogEntryPath> changedPaths = logEntry.getChangedPaths();
+            String dateNodeText = String.format(RepositoryLogTreeNode.DATE_TEXT_TPL, dateString);
+            String revisionNodeText = String.format(RepositoryLogTreeNode.REVISION_TEXT_TPL, date, revision, message, changedPaths.size());
+
+            dateNodes.putIfAbsent(dateString, new RepositoryLogTreeNode(dateString, "#", "date", dateNodeText));
+            revisionNodes.put(revision, new RepositoryLogTreeNode("r" + revision, dateString, "revision", revisionNodeText));
+            addLogTreePathNodes(revision, changedPaths, pathNodes);
+        }
+        if (latestDateString != null) {
+            dateNodes.get(latestDateString).state.opened = true;
+        }
+        LinkedList<RepositoryLogTreeNode> nodes = new LinkedList<>();
+        nodes.addAll(dateNodes.values());
+        nodes.addAll(revisionNodes.values());
+        reduceLogTreePathNodes(pathNodes);
+        nodes.addAll(pathNodes.values());
+        return nodes.toArray();
     }
 
     public String getRepositoryUUID() {
