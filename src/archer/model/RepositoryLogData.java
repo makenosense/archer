@@ -79,8 +79,8 @@ public class RepositoryLogData extends BaseModel implements Serializable {
 
     private void addLogTreePathNodes(long revision, Map<String, SVNLogEntryPath> changedPaths, HashMap<String, RepositoryLogTreeNode> pathNodes) {
         Path revisionNodePath = Paths.get("r" + revision);
-        changedPaths.keySet().stream().sorted().forEach(k -> {
-            SVNLogEntryPath changedPath = changedPaths.get(k);
+        changedPaths.keySet().stream().sorted().forEach(key -> {
+            SVNLogEntryPath changedPath = changedPaths.get(key);
             String path = changedPath.getPath();
             SVNNodeKind kind = changedPath.getKind();
             char type = changedPath.getType();
