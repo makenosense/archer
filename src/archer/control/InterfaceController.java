@@ -239,13 +239,16 @@ public class InterfaceController extends BaseController {
                     @Override
                     protected Void call() {
                         try {
+                            boolean rebuild = false;
                             if (repositoryLogData == null) {
+                                rebuild = true;
                                 repositoryLogData = RepositoryLogData.load(repository);
                             }
                             long latestRevision = repository.getLatestRevision();
                             long youngestInCache = repositoryLogData.getYoungestRevision();
                             if (latestRevision < youngestInCache) {
                                 repositoryLogData.dumpCache();
+                                rebuild = true;
                                 repositoryLogData = RepositoryLogData.load(repository);
                                 youngestInCache = repositoryLogData.getYoungestRevision();
                             }
@@ -253,6 +256,7 @@ public class InterfaceController extends BaseController {
                                 LinkedList<SVNLogEntry> newLogEntries = new LinkedList<>();
                                 repository.log(new String[]{""}, newLogEntries, youngestInCache + 1, latestRevision, true, true);
                                 if (newLogEntries.size() > 0) {
+                                    rebuild = true;
                                     for (SVNLogEntry newLogEntry : newLogEntries) {
                                         if (newLogEntry.getRevision() != repositoryLogData.getYoungestRevision() + 1) {
                                             throw new Exception("版本号不连续");
@@ -263,10 +267,12 @@ public class InterfaceController extends BaseController {
                                     repositoryLogData.save();
                                 }
                             }
-                            Platform.runLater(() -> {
-                                getWindow().call("createLogTree");
-                                getWindow().call("setLogCacheRefreshingTime", repositoryLogData.getLastChangeTimeString());
-                            });
+                            if (rebuild) {
+                                Platform.runLater(() -> {
+                                    getWindow().call("createLogTree");
+                                    getWindow().call("setLogCacheRefreshingTime", repositoryLogData.getLastChangeTimeString());
+                                });
+                            }
                         } catch (Exception e) {
                             Platform.runLater(() -> AlertUtil.error("仓库历史记录加载失败", e));
                         } finally {
