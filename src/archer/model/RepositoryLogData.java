@@ -20,6 +20,7 @@ public class RepositoryLogData extends BaseModel implements Serializable {
     private String repositoryUUID;
     private LinkedList<SVNLogEntry> logEntries;
     private Long lastChangeTime;
+    private transient Object[] logTreeNodes;
 
     static {
         File cache = new File(CACHE_PATH);
@@ -135,7 +136,8 @@ public class RepositoryLogData extends BaseModel implements Serializable {
         nodes.addAll(revisionNodes.values());
         reduceLogTreePathNodes(pathNodes);
         nodes.addAll(pathNodes.values());
-        return nodes.toArray();
+        logTreeNodes = nodes.toArray();
+        return logTreeNodes;
     }
 
     public String getRepositoryUUID() {
