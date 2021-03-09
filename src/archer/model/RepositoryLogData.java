@@ -1,12 +1,14 @@
 package archer.model;
 
 import org.tmatesoft.svn.core.SVNLogEntry;
+import org.tmatesoft.svn.core.SVNLogEntryPath;
+import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.io.SVNRepository;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Date;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class RepositoryLogData extends BaseModel implements Serializable {
@@ -73,6 +75,35 @@ public class RepositoryLogData extends BaseModel implements Serializable {
 
     public long getYoungestRevision() {
         return logEntries.size() > 0 ? logEntries.peek().getRevision() : -1;
+    }
+
+    private void addLogTreePathNodes(long revision, Map<String, SVNLogEntryPath> changedPaths, HashMap<String, RepositoryLogTreeNode> pathNodes) {
+        Path revisionNodePath = Paths.get("r" + revision);
+        changedPaths.keySet().stream().sorted().forEach(k -> {
+            SVNLogEntryPath changedPath = changedPaths.get(k);
+            String path = changedPath.getPath();
+            SVNNodeKind kind = changedPath.getKind();
+            char type = changedPath.getType();
+
+            Path nodePath = Paths.get("r" + revision, path);
+            Path parentNodePath = nodePath.getParent();
+            String nodeName = nodePath.getFileName().toString();
+            String nodeType = "";
+            if (kind == SVNNodeKind.DIR) {
+                nodeType = ("dir_" + type).toLowerCase(Locale.ROOT);
+            } else if (kind == SVNNodeKind.FILE) {
+                nodeType = ("file_" + type).toLowerCase(Locale.ROOT);
+            }
+            pathNodes.put(nodePath.toString(), new RepositoryLogTreeNode(
+                    nodePath.toString(), parentNodePath.toString(), nodeType, nodeName));
+            while (!parentNodePath.equals(revisionNodePath)) {
+                Path grandParentNodePath = parentNodePath.getParent();
+                String parentNodeName = parentNodePath.getFileName().toString();
+                pathNodes.putIfAbsent(parentNodePath.toString(), new RepositoryLogTreeNode(
+                        parentNodePath.toString(), grandParentNodePath.toString(), "dir", parentNodeName));
+                parentNodePath = grandParentNodePath;
+            }
+        });
     }
 
     public Object[] buildLogTreeNodeArray() {
