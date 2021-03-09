@@ -21,11 +21,18 @@ let logTreeOptions = {
     sort: function (n1, n2) {
         let type1 = this.get_type(n1), type2 = this.get_type(n2);
         let text1 = this.get_text(n1), text2 = this.get_text(n2);
+        let startsWithLetterOrDigit = /^\w/;
+        let textCompareResult = text1.localeCompare(text2, undefined, {sensitivity: "base"});
+        if (startsWithLetterOrDigit.test(text1) || startsWithLetterOrDigit.test(text2)) {
+            textCompareResult = text1.localeCompare(text2, "en", {sensitivity: "base"});
+        }
         if ((type1 === "date" && type2 === "date")
             || (type1 === "revision" && type2 === "revision")) {
-            return n1 <= n2 ? 1 : -1;
+            return -n1.localeCompare(n2, undefined, {sensitivity: "base"});
+        } else if (type1.startsWith("dir")) {
+            return type2.startsWith("dir") ? textCompareResult : -1;
         } else {
-            return text1 <= text2 ? -1 : 1;
+            return !type2.startsWith("dir") ? textCompareResult : 1;
         }
     },
     plugins: ["types", "sort"],
