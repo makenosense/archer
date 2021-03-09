@@ -107,6 +107,26 @@ public class RepositoryLogData extends BaseModel implements Serializable {
         });
     }
 
+    private void reduceLogTreePathNodes(HashMap<String, RepositoryLogTreeNode> pathNodes) {
+        HashMap<String, Integer> childrenCount = new HashMap<>();
+        pathNodes.values().forEach(node -> {
+            childrenCount.putIfAbsent(node.parent, 0);
+            childrenCount.computeIfPresent(node.parent, (k, v) -> ++v);
+        });
+        pathNodes.keySet().stream().sorted().forEach(key -> {
+            RepositoryLogTreeNode node = pathNodes.get(key);
+            if (node.type.startsWith("dir")
+                    && childrenCount.get(node.parent) == 1
+                    && pathNodes.containsKey(node.parent)) {
+                childrenCount.computeIfPresent(node.parent, (k, v) -> -1);
+                Path newParentNodePath = Paths.get(pathNodes.get(node.parent).parent);
+                node.parent = newParentNodePath.toString();
+                node.text = newParentNodePath.relativize(Paths.get(node.id)).toString();
+            }
+        });
+        pathNodes.keySet().removeIf(key -> childrenCount.getOrDefault(key, 0) < 0);
+    }
+
     public Object[] buildLogTreeNodeArray() {
         HashMap<String, RepositoryLogTreeNode> dateNodes = new HashMap<>();
         HashMap<Long, RepositoryLogTreeNode> revisionNodes = new HashMap<>();
