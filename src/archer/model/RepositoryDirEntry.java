@@ -4,9 +4,11 @@ import archer.util.FileUtil;
 import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNNodeKind;
 
+import java.text.Collator;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Locale;
 
 public class RepositoryDirEntry {
     private static final String TYPE_CODE_DIR = "DIR";
@@ -146,8 +148,15 @@ public class RepositoryDirEntry {
     /**
      * 比较器
      */
+    private static final String STARTS_WITH_LETTER_OR_DIGIT = "^\\w";
+    private static final Collator CHINESE_COMPARATOR = Collator.getInstance(Locale.CHINA);
+
     private static int nameCompare(RepositoryDirEntry o1, RepositoryDirEntry o2) {
-        return o1.getName().compareToIgnoreCase(o2.getName());
+        if (o1.getName().matches(STARTS_WITH_LETTER_OR_DIGIT)
+                || o2.getName().matches(STARTS_WITH_LETTER_OR_DIGIT)) {
+            return o1.getName().compareToIgnoreCase(o2.getName());
+        }
+        return CHINESE_COMPARATOR.compare(o1.getName(), o2.getName());
     }
 
     private static int mtimeCompare(RepositoryDirEntry o1, RepositoryDirEntry o2) {
