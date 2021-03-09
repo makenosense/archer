@@ -233,13 +233,18 @@ public class InterfaceController extends BaseController {
 
         private class LoadRepositoryLogService extends Service<Void> {
 
+            private boolean rebuild;
+
+            public LoadRepositoryLogService(boolean rebuild) {
+                this.rebuild = rebuild;
+            }
+
             @Override
             protected Task<Void> createTask() {
                 return new Task<Void>() {
                     @Override
                     protected Void call() {
                         try {
-                            boolean rebuild = false;
                             if (repositoryLogData == null) {
                                 rebuild = true;
                                 repositoryLogData = RepositoryLogData.load(repository);
@@ -638,9 +643,9 @@ public class InterfaceController extends BaseController {
         /**
          * 公共方法 - 历史记录
          */
-        public void loadRepositoryLog() {
+        public void loadRepositoryLog(boolean rebuild) {
             startExclusiveService(buildNonInteractiveService(
-                    new LoadRepositoryLogService(), "仓库历史记录加载失败"));
+                    new LoadRepositoryLogService(rebuild), "仓库历史记录加载失败"));
         }
 
         public Object[] getLogTreeNodeArray() {

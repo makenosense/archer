@@ -39,9 +39,9 @@ let logTreeOptions = {
 };
 
 
-function loadRepoLog() {
+function loadRepoLog(rebuild = false) {
     try {
-        javaApi.loadRepositoryLog();
+        javaApi.loadRepositoryLog(rebuild);
     } catch (error) {
         logError(error);
     }
