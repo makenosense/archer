@@ -28,7 +28,7 @@ let logTreeOptions = {
         }
         if ((type1 === "date" && type2 === "date")
             || (type1 === "revision" && type2 === "revision")) {
-            return -n1.localeCompare(n2, undefined, {sensitivity: "base"});
+            return -textCompareResult;
         } else if (type1.startsWith("dir")) {
             return type2.startsWith("dir") ? textCompareResult : -1;
         } else {
