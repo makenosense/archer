@@ -92,6 +92,3 @@ function collapseAllLogTreeNodes() {
         logTree.close_all();
     }
 }
-
-$(function () {
-});
