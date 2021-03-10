@@ -59,7 +59,12 @@ function createLogTree() {
                 id: treeNode.id,
                 parent: treeNode.parent,
                 type: treeNode.type,
-                text: treeNode.text,
+                text: treeNode.text
+                    + (treeNode.comment.length > 0 ?
+                        $("<span></span>")
+                            .addClass("path-comment")
+                            .text(" - " + treeNode.comment)
+                            .prop("outerHTML") : ""),
                 state: {
                     opened: treeNode.state.opened,
                 },

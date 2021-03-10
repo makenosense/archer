@@ -400,3 +400,7 @@ th[col-key="size"], td[col-key="size"] {
 .revision-item-count:not(.jstree-hovered *) {
     color: #999999;
 }
+
+.path-comment:not(.jstree-hovered *) {
+    color: #999999;
+}

@@ -78,31 +78,44 @@ public class RepositoryLogData extends BaseModel implements Serializable {
         return logEntries.size() > 0 ? logEntries.peek().getRevision() : -1;
     }
 
-    private void addLogTreePathNodes(long revision, Map<String, SVNLogEntryPath> changedPaths, HashMap<String, RepositoryLogTreeNode> pathNodes) {
+    private void addLogTreePathNodes(long revision, Map<String, SVNLogEntryPath> changedPaths,
+                                     HashSet<String> movedPaths, HashMap<String, RepositoryLogTreeNode> pathNodes) {
+        HashSet<String> countedMovedPaths = new HashSet<>();
         Path revisionNodePath = Paths.get("r" + revision);
         changedPaths.keySet().stream().sorted().forEach(key -> {
             SVNLogEntryPath changedPath = changedPaths.get(key);
             String path = changedPath.getPath();
-            SVNNodeKind kind = changedPath.getKind();
-            char type = changedPath.getType();
+            if (!movedPaths.contains(path)) {
+                SVNNodeKind kind = changedPath.getKind();
+                char type = changedPath.getType();
+                String copyPath = changedPath.getCopyPath();
+                long copyRevision = changedPath.getCopyRevision();
 
-            Path nodePath = Paths.get("r" + revision, path);
-            Path parentNodePath = nodePath.getParent();
-            String nodeName = nodePath.getFileName().toString();
-            String nodeType = "";
-            if (kind == SVNNodeKind.DIR) {
-                nodeType = ("dir_" + type).toLowerCase(Locale.ROOT);
-            } else if (kind == SVNNodeKind.FILE) {
-                nodeType = ("file_" + type).toLowerCase(Locale.ROOT);
-            }
-            pathNodes.put(nodePath.toString(), new RepositoryLogTreeNode(
-                    nodePath.toString(), parentNodePath.toString(), nodeType, nodeName));
-            while (!parentNodePath.equals(revisionNodePath)) {
-                Path grandParentNodePath = parentNodePath.getParent();
-                String parentNodeName = parentNodePath.getFileName().toString();
-                pathNodes.putIfAbsent(parentNodePath.toString(), new RepositoryLogTreeNode(
-                        parentNodePath.toString(), grandParentNodePath.toString(), "dir", parentNodeName));
-                parentNodePath = grandParentNodePath;
+                Path nodePath = Paths.get(revisionNodePath.toString(), path);
+                Path parentNodePath = nodePath.getParent();
+                String nodeName = nodePath.getFileName().toString();
+                String nodeType = "";
+                if (kind == SVNNodeKind.DIR) {
+                    nodeType = ("dir_" + type).toLowerCase(Locale.ROOT);
+                } else if (kind == SVNNodeKind.FILE) {
+                    nodeType = ("file_" + type).toLowerCase(Locale.ROOT);
+                }
+                String nodeComment = "";
+                if (copyPath != null && copyRevision >= 0) {
+                    String commentAction = movedPaths.contains(copyPath) && !countedMovedPaths.contains(copyPath) ? "move" : "copy";
+                    nodeComment = String.format("%s from (%d) %s", commentAction, copyRevision, copyPath);
+                    countedMovedPaths.add(copyPath);
+                }
+
+                pathNodes.put(nodePath.toString(), new RepositoryLogTreeNode(
+                        nodePath.toString(), parentNodePath.toString(), nodeType, nodeName, nodeComment));
+                while (!parentNodePath.equals(revisionNodePath)) {
+                    Path grandParentNodePath = parentNodePath.getParent();
+                    String parentNodeName = parentNodePath.getFileName().toString();
+                    pathNodes.putIfAbsent(parentNodePath.toString(), new RepositoryLogTreeNode(
+                            parentNodePath.toString(), grandParentNodePath.toString(), "dir", parentNodeName, ""));
+                    parentNodePath = grandParentNodePath;
+                }
             }
         });
     }
@@ -141,12 +154,28 @@ public class RepositoryLogData extends BaseModel implements Serializable {
             long revision = logEntry.getRevision();
             String message = logEntry.getMessage();
             Map<String, SVNLogEntryPath> changedPaths = logEntry.getChangedPaths();
-            String dateNodeText = String.format(RepositoryLogTreeNode.DATE_TEXT_TPL, dateString);
-            String revisionNodeText = String.format(RepositoryLogTreeNode.REVISION_TEXT_TPL, date, date, revision, message, changedPaths.size());
+            HashSet<String> movedPaths = new HashSet<>();
+            changedPaths.keySet().forEach(key -> {
+                SVNLogEntryPath changedPath = changedPaths.get(key);
+                String copyPath = changedPath.getCopyPath();
+                long copyRevision = changedPath.getCopyRevision();
+                if (changedPaths.containsKey(copyPath)
+                        && changedPaths.get(copyPath).getType() == 'D'
+                        && copyRevision == revision - 1) {
+                    movedPaths.add(copyPath);
+                }
+            });
 
-            dateNodes.putIfAbsent(dateString, new RepositoryLogTreeNode(dateString, "#", "date", dateNodeText));
-            revisionNodes.put(revision, new RepositoryLogTreeNode("r" + revision, dateString, "revision", revisionNodeText));
-            addLogTreePathNodes(revision, changedPaths, pathNodes);
+            String dateNodeText = String.format(RepositoryLogTreeNode.DATE_TEXT_TPL, dateString);
+            dateNodes.putIfAbsent(dateString, new RepositoryLogTreeNode(
+                    dateString, "#", "date", dateNodeText, ""));
+
+            String revisionNodeText = String.format(RepositoryLogTreeNode.REVISION_TEXT_TPL,
+                    date, date, revision, message, changedPaths.size() - movedPaths.size());
+            revisionNodes.put(revision, new RepositoryLogTreeNode(
+                    "r" + revision, dateString, "revision", revisionNodeText, ""));
+
+            addLogTreePathNodes(revision, changedPaths, movedPaths, pathNodes);
         }
         if (latestDateString != null) {
             dateNodes.get(latestDateString).state.opened = true;
