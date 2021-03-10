@@ -76,27 +76,27 @@ public class DownloadEditor implements ISVNEditor {
     }
 
     @Override
-    public void deleteEntry(String path, long revision) throws SVNException {
+    public void deleteEntry(String path, long revision) {
         // Do nothing
     }
 
     @Override
-    public void absentDir(String path) throws SVNException {
+    public void absentDir(String path) {
         // Do nothing
     }
 
     @Override
-    public void absentFile(String path) throws SVNException {
+    public void absentFile(String path) {
         // Do nothing
     }
 
     @Override
-    public void addDir(String path, String copyFromPath, long copyFromRevision) throws SVNException {
+    public void addDir(String path, String copyFromPath, long copyFromRevision) {
         // Do nothing
     }
 
     @Override
-    public void openDir(String path, long revision) throws SVNException {
+    public void openDir(String path, long revision) {
         // Do nothing
     }
 
@@ -106,7 +106,7 @@ public class DownloadEditor implements ISVNEditor {
     }
 
     @Override
-    public void closeDir() throws SVNException {
+    public void closeDir() {
         // Do nothing
     }
 
@@ -137,7 +137,7 @@ public class DownloadEditor implements ISVNEditor {
     }
 
     @Override
-    public void openFile(String path, long revision) throws SVNException {
+    public void openFile(String path, long revision) {
         // Do nothing
     }
 
@@ -172,12 +172,12 @@ public class DownloadEditor implements ISVNEditor {
     }
 
     @Override
-    public SVNCommitInfo closeEdit() throws SVNException {
+    public SVNCommitInfo closeEdit() {
         return null;
     }
 
     @Override
-    public void abortEdit() throws SVNException {
+    public void abortEdit() {
         for (File entry : newEntries) {
             if (entry.exists()) {
                 File[] children = entry.listFiles();
