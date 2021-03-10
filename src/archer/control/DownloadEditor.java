@@ -92,16 +92,7 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void addDir(String path, String copyFromPath, long copyFromRevision) throws SVNException {
-        File newDir = getDownloadTarget(path);
-        if (!newDir.isDirectory()) {
-            if (newDir.exists()) {
-                throwIOException("不能在此路径创建文件夹：" + newDir.getAbsolutePath());
-            }
-            newEntries.addFirst(newDir);
-            if (!newDir.mkdirs()) {
-                throwIOException("文件夹创建失败：" + newDir.getAbsolutePath());
-            }
-        }
+        // Do nothing
     }
 
     @Override
@@ -124,6 +115,18 @@ public class DownloadEditor implements ISVNEditor {
         File newTempFile = getTempDownloadTarget(path);
         if (newTempFile.exists()) {
             throwIOException("临时文件已存在：" + newTempFile.getAbsolutePath());
+        }
+        LinkedList<File> newDirs = new LinkedList<>();
+        for (File parent = newTempFile.getParentFile();
+             parent != null && !parent.equals(downloadParent) && !parent.isDirectory();
+             parent = parent.getParentFile()) {
+            newDirs.addFirst(parent);
+        }
+        newDirs.forEach(newEntries::addFirst);
+        for (File newDir : newDirs) {
+            if (!newDir.mkdir()) {
+                throwIOException("文件夹创建失败：" + newDir.getAbsolutePath());
+            }
         }
         newEntries.addFirst(newTempFile);
         try {
