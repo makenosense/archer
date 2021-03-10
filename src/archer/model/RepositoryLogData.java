@@ -79,7 +79,8 @@ public class RepositoryLogData extends BaseModel implements Serializable {
     }
 
     private void addLogTreePathNodes(long revision, Map<String, SVNLogEntryPath> changedPaths,
-                                     HashSet<String> movedPaths, HashMap<String, RepositoryLogTreeNode> pathNodes) {
+                                     HashSet<String> movedPaths, HashMap<String, String> renamedPaths,
+                                     HashMap<String, RepositoryLogTreeNode> pathNodes) {
         HashSet<String> countedMovedPaths = new HashSet<>();
         Path revisionNodePath = Paths.get("r" + revision);
         changedPaths.keySet().stream().sorted().forEach(key -> {
@@ -102,9 +103,17 @@ public class RepositoryLogData extends BaseModel implements Serializable {
                 }
                 String nodeComment = "";
                 if (copyPath != null && copyRevision >= 0) {
-                    String commentAction = movedPaths.contains(copyPath) && !countedMovedPaths.contains(copyPath) ? "move" : "copy";
+                    String commentAction = "copy";
+                    if (movedPaths.contains(copyPath)
+                            && !countedMovedPaths.contains(copyPath)
+                            && !renamedPaths.containsKey(copyPath)) {
+                        commentAction = "move";
+                        countedMovedPaths.add(copyPath);
+                    }
+                    if (path.equals(renamedPaths.getOrDefault(copyPath, null))) {
+                        commentAction = "rename";
+                    }
                     nodeComment = String.format("%s from (%d) %s", commentAction, copyRevision, copyPath);
-                    countedMovedPaths.add(copyPath);
                 }
 
                 pathNodes.put(nodePath.toString(), new RepositoryLogTreeNode(
@@ -155,14 +164,19 @@ public class RepositoryLogData extends BaseModel implements Serializable {
             String message = logEntry.getMessage();
             Map<String, SVNLogEntryPath> changedPaths = logEntry.getChangedPaths();
             HashSet<String> movedPaths = new HashSet<>();
+            HashMap<String, String> renamedPaths = new HashMap<>();
             changedPaths.keySet().forEach(key -> {
                 SVNLogEntryPath changedPath = changedPaths.get(key);
+                String path = changedPath.getPath();
                 String copyPath = changedPath.getCopyPath();
                 long copyRevision = changedPath.getCopyRevision();
                 if (changedPaths.containsKey(copyPath)
                         && changedPaths.get(copyPath).getType() == 'D'
                         && copyRevision == revision - 1) {
                     movedPaths.add(copyPath);
+                    if (Paths.get(path).getParent().equals(Paths.get(copyPath).getParent())) {
+                        renamedPaths.putIfAbsent(copyPath, path);
+                    }
                 }
             });
 
@@ -175,7 +189,7 @@ public class RepositoryLogData extends BaseModel implements Serializable {
             revisionNodes.put(revision, new RepositoryLogTreeNode(
                     "r" + revision, dateString, "revision", revisionNodeText, ""));
 
-            addLogTreePathNodes(revision, changedPaths, movedPaths, pathNodes);
+            addLogTreePathNodes(revision, changedPaths, movedPaths, renamedPaths, pathNodes);
         }
         if (latestDateString != null) {
             dateNodes.get(latestDateString).state.opened = true;
