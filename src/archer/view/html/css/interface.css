@@ -332,6 +332,7 @@ th[col-key="size"], td[col-key="size"] {
 
 /*仓库历史记录*/
 #log-status {
+    color: #777777;
     display: inline-block;
     line-height: 26px;
     padding: 8px 0;
