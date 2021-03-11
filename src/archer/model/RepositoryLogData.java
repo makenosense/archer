@@ -103,15 +103,15 @@ public class RepositoryLogData extends BaseModel implements Serializable {
                 }
                 String nodeComment = "";
                 if (copyPath != null && copyRevision >= 0) {
-                    String commentAction = "copy";
+                    String commentAction = "copied";
                     if (movedPaths.contains(copyPath)
                             && !countedMovedPaths.contains(copyPath)
                             && !renamedPaths.containsKey(copyPath)) {
-                        commentAction = "move";
+                        commentAction = "moved";
                         countedMovedPaths.add(copyPath);
                     }
                     if (path.equals(renamedPaths.getOrDefault(copyPath, null))) {
-                        commentAction = "rename";
+                        commentAction = "renamed";
                     }
                     nodeComment = String.format("%s from (%d) %s", commentAction, copyRevision, copyPath);
                 }
