@@ -18,7 +18,8 @@ public class DownloadReporterBaton implements ISVNReporterBaton {
     @Override
     public void report(ISVNReporter reporter) throws SVNException {
         try {
-            reporter.setPath(path, null, revision, SVNDepth.INFINITY, true);
+            reporter.setPath("", null, revision, SVNDepth.INFINITY, false);
+            reporter.deletePath(path);
             reporter.finishReport();
         } catch (Exception e) {
             reporter.abortReport();
