@@ -185,7 +185,7 @@ public class RepositoryLogData extends BaseModel implements Serializable {
                     dateString, "#", "date", dateNodeText, ""));
 
             String revisionNodeText = String.format(RepositoryLogTreeNode.REVISION_TEXT_TPL,
-                    date, date, revision, message, changedPaths.size() - movedPaths.size());
+                    date, date, revision, message, message, changedPaths.size() - movedPaths.size());
             revisionNodes.put(revision, new RepositoryLogTreeNode(
                     "r" + revision, dateString, "revision", revisionNodeText, ""));
 

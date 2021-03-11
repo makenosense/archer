@@ -397,6 +397,13 @@ th[col-key="size"], td[col-key="size"] {
     color: #cccccc;
 }
 
+.revision-message {
+    display: inline-block;
+    max-width: 32em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .revision-item-count:not(.jstree-hovered *) {
     color: #999999;
 }

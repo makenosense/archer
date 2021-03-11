@@ -3,7 +3,7 @@ package archer.model;
 public class RepositoryLogTreeNode {
     public static final String DATE_TEXT_TPL = "<span class='log-date'>%s</span>";
     public static final String REVISION_TEXT_TPL = "<span class='revision-time' title='%tT'>%tR</span> " +
-            "(%d) %s<span class='revision-item-count'> - %d项</span>";
+            "(%d) <span class='revision-message' title='%s'>%s</span><span class='revision-item-count'> - %d项</span>";
 
     public String id;
     public String parent;
