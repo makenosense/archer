@@ -166,6 +166,14 @@ function createDir(name) {
     }
 }
 
+function downloadEntry(paths) {
+    try {
+        javaApi.downloadEntry(paths, paths.length);
+    } catch (error) {
+        logError(error);
+    }
+}
+
 function deleteEntry(paths) {
     try {
         repoContentLoading();
@@ -266,7 +274,18 @@ $(function () {
 
 /*下载*/
 $(function () {
-
+    $("#repo-ops-download-entry").click(function () {
+        let paths = [];
+        $(".repo-content-check:checked").each(function () {
+            let path = $(this).parents(".repo-content-td-name").attr("title");
+            if (typeof (path) != "undefined") {
+                paths.push(path);
+            }
+        });
+        if (paths.length > 0) {
+            downloadEntry(paths);
+        }
+    });
 });
 
 /*删除*/
