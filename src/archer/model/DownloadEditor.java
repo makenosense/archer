@@ -1,8 +1,6 @@
-package archer.control;
+package archer.model;
 
 import archer.MainApp;
-import archer.model.AppSettings;
-import archer.model.RepositoryPathNode;
 import org.tmatesoft.svn.core.*;
 import org.tmatesoft.svn.core.internal.wc.SVNErrorManager;
 import org.tmatesoft.svn.core.io.ISVNEditor;

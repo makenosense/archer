@@ -1,16 +1,16 @@
-package archer.control;
+package archer.model;
 
 import org.tmatesoft.svn.core.SVNDepth;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.io.ISVNReporter;
 import org.tmatesoft.svn.core.io.ISVNReporterBaton;
 
-public class DownloadReporterBaton implements ISVNReporterBaton {
+public class DownloadReporter implements ISVNReporterBaton {
 
     private final String path;
     private final long revision;
 
-    public DownloadReporterBaton(String path, long revision) {
+    public DownloadReporter(String path, long revision) {
         this.path = path;
         this.revision = revision;
     }
