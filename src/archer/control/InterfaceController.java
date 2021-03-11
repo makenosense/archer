@@ -88,6 +88,14 @@ public class InterfaceController extends BaseController {
         /**
          * 私有方法
          */
+        private LinkedList<String> convertJSArray(JSObject array, int length) {
+            LinkedList<String> list = new LinkedList<>();
+            for (int idx = 0; idx < length; ) {
+                list.add((String) array.getSlot(idx++));
+            }
+            return list;
+        }
+
         private void serviceCleanup() {
             uploadTransactionData = null;
             mainApp.hideProgress();
@@ -624,10 +632,7 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 主页 - 删除
          */
         public void deleteEntry(JSObject pathArray, int length) {
-            LinkedList<String> pathList = new LinkedList<>();
-            for (int idx = 0; idx < length; ) {
-                pathList.add((String) pathArray.getSlot(idx++));
-            }
+            LinkedList<String> pathList = convertJSArray(pathArray, length);
             String errorMsg = "删除失败";
             startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("删除", errorMsg) {
