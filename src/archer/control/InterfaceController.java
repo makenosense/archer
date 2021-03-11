@@ -160,6 +160,39 @@ public class InterfaceController extends BaseController {
             }
         }
 
+        private class LaunchDownloadTaskService extends Service<Void> {
+
+            private final LinkedList<String> pathList;
+
+            public LaunchDownloadTaskService(LinkedList<String> pathList) {
+                this.pathList = pathList;
+            }
+
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        try {
+                            Platform.runLater(() -> mainApp.showProgress(-1, "正在收集下载任务"));
+                            List<DownloadTask> newDownloadTasks = new LinkedList<>();
+                            for (String srcPathString : pathList) {
+                                RepositoryPathNode srcPathNode = path.resolve(srcPathString).getPathNode();
+                                collectDownloadTasks(srcPathNode, srcPathNode.getParent(), newDownloadTasks);
+                            }
+                            Platform.runLater(() -> mainApp.showProgress(-1, "正在添加下载任务"));
+                            downloadQueue.addAll(newDownloadTasks);
+                        } catch (Exception e) {
+                            Platform.runLater(() -> AlertUtil.error("下载任务添加失败", e));
+                        } finally {
+                            Platform.runLater(JavaApi.this::serviceCleanup);
+                        }
+                        return null;
+                    }
+                };
+            }
+        }
+
         private abstract class EditingService extends Service<Void> {
 
             protected final String logMessage;
@@ -625,7 +658,23 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 主页 - 下载
          */
         public void downloadEntry(JSObject pathArray, int length) {
+            LinkedList<String> pathList = convertJSStringArray(pathArray, length);
+            startExclusiveService(buildNonInteractiveService(
+                    new LaunchDownloadTaskService(pathList), "下载任务添加失败"));
+        }
 
+        private void collectDownloadTasks(RepositoryPathNode pathNode, RepositoryPathNode parentPathNode,
+                                          List<DownloadTask> downloadTasks) throws SVNException {
+            SVNDirEntry entry = repository.info(pathNode.toString(), -1);
+            if (entry.getKind() == SVNNodeKind.FILE) {
+                downloadTasks.add(new DownloadTask(pathNode.toString(), entry.getRevision(), parentPathNode));
+            } else if (entry.getKind() == SVNNodeKind.DIR) {
+                ArrayList<SVNDirEntry> dirEntries = new ArrayList<>();
+                repository.getDir(pathNode.toString(), -1, null, dirEntries);
+                for (SVNDirEntry dirEntry : dirEntries) {
+                    collectDownloadTasks(pathNode.resolve(dirEntry.getName()), parentPathNode, downloadTasks);
+                }
+            }
         }
 
         /**
