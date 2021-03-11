@@ -23,6 +23,12 @@ public class RepositoryPathNode {
         return path.getFileName().toString();
     }
 
+    public RepositoryPathNode getParent() {
+        Path parentPath = path.getParent();
+        return parentPath != null ?
+                new RepositoryPathNode(parentPath) : null;
+    }
+
     public RepositoryPathNode resolve(String pathString) {
         return new RepositoryPathNode(path.resolve(pathString));
     }
