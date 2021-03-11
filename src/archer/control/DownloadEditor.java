@@ -34,7 +34,7 @@ public class DownloadEditor implements ISVNEditor {
 
     private File getDownloadTarget(String srcPathString) throws SVNException {
         Path parentPath = parentPathNode.getPath();
-        Path srcPath = Paths.get("/", srcPathString).normalize();
+        Path srcPath = Paths.get("/").resolve(srcPathString);
         if (!srcPath.startsWith(parentPath) || parentPath.startsWith(srcPath)) {
             throwIOException("目标路径不在下载范围内：" + srcPathString);
         }
