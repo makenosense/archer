@@ -16,10 +16,11 @@ import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
+import java.util.Locale;
 import java.util.Objects;
 
 public class DownloadEditor implements ISVNEditor {
-    private static final String TEMP_SUFFIX = "." + MainApp.APP_NAME + "downloading";
+    private static final String TEMP_SUFFIX = ("." + MainApp.APP_NAME + "downloading").toLowerCase(Locale.ROOT);
 
     private final SVNDeltaProcessor deltaProcessor = new SVNDeltaProcessor();
     private final RepositoryPathNode parentPathNode;
