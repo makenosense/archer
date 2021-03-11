@@ -88,7 +88,7 @@ public class InterfaceController extends BaseController {
         /**
          * 私有方法
          */
-        private LinkedList<String> convertJSArray(JSObject array, int length) {
+        private LinkedList<String> convertJSStringArray(JSObject array, int length) {
             LinkedList<String> list = new LinkedList<>();
             for (int idx = 0; idx < length; ) {
                 list.add((String) array.getSlot(idx++));
@@ -632,7 +632,7 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 主页 - 删除
          */
         public void deleteEntry(JSObject pathArray, int length) {
-            LinkedList<String> pathList = convertJSArray(pathArray, length);
+            LinkedList<String> pathList = convertJSStringArray(pathArray, length);
             String errorMsg = "删除失败";
             startExclusiveService(buildNonInteractiveService(
                     new EditingWithRefreshingService("删除", errorMsg) {
