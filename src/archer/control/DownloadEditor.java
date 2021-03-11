@@ -37,7 +37,7 @@ public class DownloadEditor implements ISVNEditor {
         Path parentPath = parentPathNode.getPath();
         Path srcPath = Paths.get("/").resolve(srcPathString);
         if (!srcPath.startsWith(parentPath) || parentPath.startsWith(srcPath)) {
-            throwIOException("目标路径不在下载范围内：" + srcPathString);
+            throwSVNException("目标路径不在下载范围内：" + srcPathString);
         }
         return new File(downloadParent, parentPathNode.relativize(srcPath).toString());
     }
@@ -57,8 +57,8 @@ public class DownloadEditor implements ISVNEditor {
         return String.format("%s(%d)%s", fileNameBody, num, fileSuffix);
     }
 
-    private void throwIOException(String msg) throws SVNException {
-        SVNErrorManager.error(SVNErrorMessage.create(SVNErrorCode.IO_ERROR),
+    private void throwSVNException(String msg) throws SVNException {
+        SVNErrorManager.error(SVNErrorMessage.create(SVNErrorCode.RA_SVN_CMD_ERR),
                 new Exception(msg), SVNLogType.DEFAULT);
     }
 
@@ -71,7 +71,7 @@ public class DownloadEditor implements ISVNEditor {
     public void openRoot(long revision) throws SVNException {
         if (!downloadParent.isDirectory()) {
             if (!downloadParent.mkdirs()) {
-                throwIOException("下载文件夹创建失败：" + downloadParent.getAbsolutePath());
+                throwSVNException("下载文件夹创建失败：" + downloadParent.getAbsolutePath());
             }
         }
     }
@@ -115,7 +115,7 @@ public class DownloadEditor implements ISVNEditor {
     public void addFile(String path, String copyFromPath, long copyFromRevision) throws SVNException {
         File newTempFile = getTempDownloadTarget(path);
         if (newTempFile.exists()) {
-            throwIOException("临时文件已存在：" + newTempFile.getAbsolutePath());
+            throwSVNException("临时文件已存在：" + newTempFile.getAbsolutePath());
         }
         LinkedList<File> newDirs = new LinkedList<>();
         for (File parent = newTempFile.getParentFile();
@@ -126,14 +126,14 @@ public class DownloadEditor implements ISVNEditor {
         newDirs.forEach(newEntries::addFirst);
         for (File newDir : newDirs) {
             if (!newDir.mkdir()) {
-                throwIOException("文件夹创建失败：" + newDir.getAbsolutePath());
+                throwSVNException("文件夹创建失败：" + newDir.getAbsolutePath());
             }
         }
         newEntries.addFirst(newTempFile);
         try {
             newTempFile.createNewFile();
         } catch (IOException e) {
-            throwIOException("临时文件创建失败：" + newTempFile.getAbsolutePath());
+            throwSVNException("临时文件创建失败：" + newTempFile.getAbsolutePath());
         }
     }
 
@@ -150,12 +150,12 @@ public class DownloadEditor implements ISVNEditor {
     @Override
     public void closeFile(String path, String textChecksum) throws SVNException {
         if (!Objects.equals(lastCheckSum, textChecksum)) {
-            throwIOException("下载文件校验失败：" + path);
+            throwSVNException("下载文件校验失败：" + path);
         }
         File newTempFile = getTempDownloadTarget(path);
         File newFile = getDownloadTarget(path);
         if (!newTempFile.isFile()) {
-            throwIOException("临时文件不存在：" + newTempFile.getAbsolutePath());
+            throwSVNException("临时文件不存在：" + newTempFile.getAbsolutePath());
         }
         if (newFile.exists()) {
             File parent = newFile.getParentFile();
@@ -167,7 +167,7 @@ public class DownloadEditor implements ISVNEditor {
         }
         newEntries.addFirst(newFile);
         if (!newTempFile.renameTo(newFile)) {
-            throwIOException("文件下载失败：" + path);
+            throwSVNException("文件下载失败：" + path);
         }
         newEntries.remove(newTempFile);
     }
