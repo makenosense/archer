@@ -27,9 +27,10 @@
             <div>最近</div>
         </li>
         <li class="sidebar-tab-item" id="sidebar-repo-transfer">
-            <i class="layui-icon layui-icon-slider"></i>
-            <i class="layui-icon layui-icon-loading layui-anim layui-anim-loop layui-anim-rotate"></i>
-            <div>传输</div>
+            <i class="layui-icon layui-icon-slider" id="icon-no-transfer"></i>
+            <i class="layui-icon layui-icon-loading layui-anim layui-anim-loop layui-anim-rotate"
+               id="icon-transfer-active"></i>
+            <div>传输<span class="layui-badge layui-bg-blue" id="transfer-count"></span></div>
         </li>
         <li class="sidebar-tab-item" id="sidebar-settings">
             <i class="layui-icon layui-icon-set"></i>
@@ -241,6 +242,7 @@
 <script src="js/common.js"></script>
 <script src="js/interface-home.js"></script>
 <script src="js/interface-log.js"></script>
+<script src="js/interface-transfer.js"></script>
 <script src="js/interface-basic.js"></script>
 
 </body>

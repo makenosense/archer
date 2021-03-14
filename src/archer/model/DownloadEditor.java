@@ -25,6 +25,7 @@ public class DownloadEditor implements ISVNEditor {
     private final File downloadParent;
     private final LinkedList<File> newEntries = new LinkedList<>();
     private String lastCheckSum;
+    private long lastReceivedTotal;
 
     public DownloadEditor(RepositoryPathNode parentPathNode, File downloadParent) {
         this.parentPathNode = parentPathNode != null ? parentPathNode : new RepositoryPathNode(Paths.get("/"));
@@ -189,16 +190,22 @@ public class DownloadEditor implements ISVNEditor {
 
     @Override
     public void applyTextDelta(String path, String baseChecksum) throws SVNException {
+        lastReceivedTotal = 0;
         deltaProcessor.applyTextDelta((File) null, getTempDownloadTarget(path), true);
     }
 
     @Override
     public OutputStream textDeltaChunk(String path, SVNDiffWindow diffWindow) throws SVNException {
+        lastReceivedTotal += diffWindow.getNewDataLength();
         return deltaProcessor.textDeltaChunk(diffWindow);
     }
 
     @Override
     public void textDeltaEnd(String path) {
         lastCheckSum = deltaProcessor.textDeltaEnd();
+    }
+
+    public long getLastReceivedTotal() {
+        return lastReceivedTotal;
     }
 }

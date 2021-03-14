@@ -56,6 +56,12 @@ body {
     font-size: 13px;
 }
 
+#transfer-count {
+    display: none;
+    margin-left: 5px;
+    padding: 0 2px;
+}
+
 #sidebar-repo-close {
     position: absolute;
     bottom: 0;
