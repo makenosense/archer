@@ -664,15 +664,17 @@ public class InterfaceController extends BaseController {
         }
 
         private void collectDownloadTasks(RepositoryPathNode pathNode, RepositoryPathNode parentPathNode,
-                                          List<DownloadTask> downloadTasks) throws SVNException {
-            SVNDirEntry entry = repository.info(pathNode.toString(), -1);
-            if (entry.getKind() == SVNNodeKind.FILE) {
-                downloadTasks.add(new DownloadTask(pathNode.toString(), entry, parentPathNode));
-            } else if (entry.getKind() == SVNNodeKind.DIR) {
-                ArrayList<SVNDirEntry> dirEntries = new ArrayList<>();
-                repository.getDir(pathNode.toString(), -1, null, dirEntries);
-                for (SVNDirEntry dirEntry : dirEntries) {
-                    collectDownloadTasks(pathNode.resolve(dirEntry.getName()), parentPathNode, downloadTasks);
+                                          List<DownloadTask> downloadTasks, Task<Void> task) throws SVNException {
+            if (!task.isCancelled()) {
+                SVNDirEntry entry = repository.info(pathNode.toString(), -1);
+                if (entry.getKind() == SVNNodeKind.FILE) {
+                    downloadTasks.add(new DownloadTask(pathNode.toString(), entry, parentPathNode));
+                } else if (entry.getKind() == SVNNodeKind.DIR) {
+                    ArrayList<SVNDirEntry> dirEntries = new ArrayList<>();
+                    repository.getDir(pathNode.toString(), -1, null, dirEntries);
+                    for (SVNDirEntry dirEntry : dirEntries) {
+                        collectDownloadTasks(pathNode.resolve(dirEntry.getName()), parentPathNode, downloadTasks, task);
+                    }
                 }
             }
         }
