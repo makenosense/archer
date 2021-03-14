@@ -26,7 +26,6 @@ import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -85,34 +84,6 @@ public class InterfaceController extends BaseController {
         private final RepositoryContentData repositoryContentData = new RepositoryContentData();
         private RepositoryLogData repositoryLogData;
         private UploadTransactionData uploadTransactionData;
-        private DownloadTask downloadingTask;
-        private final LinkedBlockingQueue<DownloadTask> downloadWaitingQueue = new LinkedBlockingQueue<>();
-        private final Service<Void> downloadService = new Service<Void>() {
-            @Override
-            protected Task<Void> createTask() {
-                return new Task<Void>() {
-                    @Override
-                    protected Void call() {
-                        while (!isCancelled()) {
-                            try {
-                                downloadingTask = downloadWaitingQueue.take();
-                                downloadingTask.execute(repository);
-                            } catch (InterruptedException ignored) {
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            } finally {
-                                downloadingTask = null;
-                            }
-                        }
-                        return null;
-                    }
-                };
-            }
-        };
-
-        public JavaApi() {
-            downloadService.start();
-        }
 
         /**
          * 私有方法
@@ -189,11 +160,11 @@ public class InterfaceController extends BaseController {
             }
         }
 
-        private class LaunchDownloadTaskService extends Service<Void> {
+        private class DownloadService extends Service<Void> {
 
             private final LinkedList<String> pathList;
 
-            public LaunchDownloadTaskService(LinkedList<String> pathList) {
+            public DownloadService(LinkedList<String> pathList) {
                 this.pathList = pathList;
             }
 
@@ -210,9 +181,8 @@ public class InterfaceController extends BaseController {
                                 collectDownloadTasks(srcPathNode, srcPathNode.getParent(), newDownloadTasks);
                             }
                             Platform.runLater(() -> mainApp.showProgress(-1, "正在添加下载任务"));
-                            downloadWaitingQueue.addAll(newDownloadTasks);
                         } catch (Exception e) {
-                            Platform.runLater(() -> AlertUtil.error("下载任务添加失败", e));
+                            Platform.runLater(() -> AlertUtil.error("下载失败", e));
                         } finally {
                             Platform.runLater(JavaApi.this::serviceCleanup);
                         }
@@ -363,7 +333,6 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 关闭仓库
          */
         public void closeRepository() {
-            downloadService.cancel();
             mainApp.showWelcome();
         }
 
@@ -690,7 +659,7 @@ public class InterfaceController extends BaseController {
         public void downloadEntry(JSObject pathArray, int length) {
             LinkedList<String> pathList = convertJSStringArray(pathArray, length);
             startExclusiveService(buildNonInteractiveService(
-                    new LaunchDownloadTaskService(pathList), "下载任务添加失败"));
+                    new DownloadService(pathList), "下载失败"));
         }
 
         private void collectDownloadTasks(RepositoryPathNode pathNode, RepositoryPathNode parentPathNode,
