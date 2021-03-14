@@ -119,8 +119,8 @@ public class InterfaceController extends BaseController {
             };
         }
 
-        private void cancelExclusiveService() {
-            if (service != null && service.isRunning() && AlertUtil.confirm("确定取消上传吗？")) {
+        private void cancelExclusiveService(String confirmMsg) {
+            if (service != null && service.isRunning() && AlertUtil.confirm(confirmMsg)) {
                 service.cancel();
             }
         }
@@ -501,12 +501,13 @@ public class InterfaceController extends BaseController {
                 String fileUploadProgressTextTpl = "[%6s] [%s / %s] 总进度：%d / %d \t| 剩余时间：%s";
                 String fileUploadSubProgressTextTpl = "[%6s] [%s / %s] 正在上传：%s";
                 String uploadCompleteProgressText = "上传完成";
+                String cancelConfirmMsg = "确定取消上传吗？";
                 startExclusiveService(buildNonInteractiveService(new EditingWithRefreshingService("上传", errorMsg) {
                     @Override
                     protected void beforeEditing(Task<Void> task) throws Exception {
                         Platform.runLater(() -> {
                             mainApp.showProgress(-1, uploadPreCheckProgressText);
-                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                            mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService(cancelConfirmMsg));
                         });
                         uploadTransactionData = new UploadTransactionData(repository, dirs, files, uploadPathMap, task);
                         checkUploadItems(uploadTransactionData.dirList(), uploadTransactionData.fileList(), errorMsg, task);
@@ -519,7 +520,7 @@ public class InterfaceController extends BaseController {
                             Platform.runLater(() -> {
                                 mainApp.showProgress(0, dirUploadProgressText);
                                 mainApp.setProgressTitle(progressTitle);
-                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService(cancelConfirmMsg));
                             });
 
                             /*上传文件夹*/
@@ -540,7 +541,7 @@ public class InterfaceController extends BaseController {
                             Platform.runLater(() -> {
                                 mainApp.showProgress(0, fileUploadProgressText, 0, fileUploadProgressText);
                                 mainApp.setProgressTitle(progressTitle);
-                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService());
+                                mainApp.setOnProgressCloseRequest(event -> cancelExclusiveService(cancelConfirmMsg));
                             });
 
                             /*上传文件*/
