@@ -47,19 +47,9 @@ body {
     font-size: 22px;
 }
 
-.sidebar-tab-item > i.layui-icon-loading {
-    display: none;
-}
-
 .sidebar-tab-item > div {
     line-height: 18px;
     font-size: 13px;
-}
-
-#transfer-count {
-    display: none;
-    margin-left: 5px;
-    padding: 0 2px;
 }
 
 #sidebar-repo-close {
