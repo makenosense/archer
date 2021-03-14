@@ -26,6 +26,7 @@ import java.io.FileInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -84,6 +85,34 @@ public class InterfaceController extends BaseController {
         private final RepositoryContentData repositoryContentData = new RepositoryContentData();
         private RepositoryLogData repositoryLogData;
         private UploadTransactionData uploadTransactionData;
+        private DownloadTask downloadingTask;
+        private final LinkedBlockingQueue<DownloadTask> downloadWaitingQueue = new LinkedBlockingQueue<>();
+        private final Service<Void> downloadService = new Service<Void>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        while (!isCancelled()) {
+                            try {
+                                downloadingTask = downloadWaitingQueue.take();
+                                downloadingTask.execute(repository);
+                            } catch (InterruptedException ignored) {
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+                                downloadingTask = null;
+                            }
+                        }
+                        return null;
+                    }
+                };
+            }
+        };
+
+        public JavaApi() {
+            downloadService.start();
+        }
 
         /**
          * 私有方法
@@ -181,7 +210,7 @@ public class InterfaceController extends BaseController {
                                 collectDownloadTasks(srcPathNode, srcPathNode.getParent(), newDownloadTasks);
                             }
                             Platform.runLater(() -> mainApp.showProgress(-1, "正在添加下载任务"));
-                            downloadQueue.addAll(newDownloadTasks);
+                            downloadWaitingQueue.addAll(newDownloadTasks);
                         } catch (Exception e) {
                             Platform.runLater(() -> AlertUtil.error("下载任务添加失败", e));
                         } finally {
@@ -334,6 +363,7 @@ public class InterfaceController extends BaseController {
          * 公共方法 - 关闭仓库
          */
         public void closeRepository() {
+            downloadService.cancel();
             mainApp.showWelcome();
         }
 
@@ -667,7 +697,7 @@ public class InterfaceController extends BaseController {
                                           List<DownloadTask> downloadTasks) throws SVNException {
             SVNDirEntry entry = repository.info(pathNode.toString(), -1);
             if (entry.getKind() == SVNNodeKind.FILE) {
-                downloadTasks.add(new DownloadTask(pathNode.toString(), entry.getRevision(), parentPathNode));
+                downloadTasks.add(new DownloadTask(pathNode.toString(), entry, parentPathNode));
             } else if (entry.getKind() == SVNNodeKind.DIR) {
                 ArrayList<SVNDirEntry> dirEntries = new ArrayList<>();
                 repository.getDir(pathNode.toString(), -1, null, dirEntries);
